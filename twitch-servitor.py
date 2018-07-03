@@ -11,6 +11,8 @@ with open('creds.yml', 'r') as credsfile:
     twitch_token = creds['twitch_irc_token']
 
 def on_message(ws, message):
+    if "PING" in message:
+        ws.send("PONG :tmi.twitch.tv")
     print(message)
 
 def on_error(ws, error):
@@ -39,6 +41,7 @@ if __name__ == "__main__":
     ws = websocket.WebSocketApp("ws://irc-ws.chat.twitch.tv:80/",
                               on_message = on_message,
                               on_error = on_error,
-                              on_close = on_close)
+                              on_close = on_close,
+                              )
     ws.on_open = on_open
     ws.run_forever()
