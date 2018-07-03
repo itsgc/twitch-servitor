@@ -43,7 +43,7 @@ if __name__ == "__main__":
     with open('creds.yml', 'r') as credsfile:
         creds = load(credsfile)
         twitch_token = creds['twitch_irc_token']
-    chan = "#karmik-twitchtest"
+    chan = "#karmik"
 
     reactor.connectTCP('irc.chat.twitch.tv', 6667, BotFactory(chan, password=twitch_token))
     reactor.run()
