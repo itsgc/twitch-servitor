@@ -10,10 +10,9 @@ from yaml import load
 class Bot(irc.IRCClient):
     def _get_nickname(self):
         return self.factory.nickname
+    def _get_password(self):
+        return self.factory.password
     nickname = property(_get_nickname)
-    with open('creds.yml', 'r') as credsfile:
-        creds = load(credsfile)
-        twitch_token = creds['twitch_irc_token']
 
     def signedOn(self):
         self.join(self.factory.channel)
@@ -28,9 +27,10 @@ class Bot(irc.IRCClient):
 class BotFactory(protocol.ClientFactory):
     protocol = Bot
 
-    def __init__(self, channel, nickname='twitch-servitor'):
+    def __init__(self, channel, nickname='twitch-servitor', password='emperor'):
         self.channel = channel
         self.nickname = nickname
+        self.password = password
 
     def clientConnectionLost(self, connector, reason):
         print "Connection lost. Reason: %s" % reason
@@ -40,6 +40,10 @@ class BotFactory(protocol.ClientFactory):
        print "Connection failed. Reason: %s" % reason
 
 if __name__ == "__main__":
+    with open('creds.yml', 'r') as credsfile:
+        creds = load(credsfile)
+        twitch_token = creds['twitch_irc_token']
     chan = "#karmik-twitchtest"
-    reactor.connectTCP('irc.freenode.net', 6667, BotFactory(chan))
+
+    reactor.connectTCP('irc.freenode.net', 6667, BotFactory(chan, password=twitch_token))
     reactor.run()
