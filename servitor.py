@@ -40,6 +40,6 @@ class BotFactory(protocol.ClientFactory):
        print "Connection failed. Reason: %s" % reason
 
 if __name__ == "__main__":
-    chan = sys.argv[1]
-    reactor.connectTCP('irc.freenode.net', 6667, BotFactory('#' + chan))
+    chan = "#karmik-twitchtest"
+    reactor.connectTCP('irc.freenode.net', 6667, BotFactory(chan))
     reactor.run()
