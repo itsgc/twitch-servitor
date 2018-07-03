@@ -27,7 +27,7 @@ class Bot(irc.IRCClient):
 class BotFactory(protocol.ClientFactory):
     protocol = Bot
 
-    def __init__(self, channel, nickname='twitch-servitor', password='emperor'):
+    def __init__(self, channel, nickname='karmik', password='emperor'):
         self.channel = channel
         self.nickname = nickname
         self.password = password
@@ -45,5 +45,5 @@ if __name__ == "__main__":
         twitch_token = creds['twitch_irc_token']
     chan = "#karmik-twitchtest"
 
-    reactor.connectTCP('irc.freenode.net', 6667, BotFactory(chan, password=twitch_token))
+    reactor.connectTCP('irc.chat.twitch.tv', 6667, BotFactory(chan, password=twitch_token))
     reactor.run()
