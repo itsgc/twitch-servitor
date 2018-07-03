@@ -30,9 +30,7 @@ def on_open(ws):
         time.sleep(5)
         ws.send("JOIN #karmik")
         time.sleep(1)
-        ws.send("Hello word")
-        ws.close()
-        print("thread terminating...")
+        ws.send("PRIVMSG #karmik :Hello word")
     thread.start_new_thread(run, ())
 
 
