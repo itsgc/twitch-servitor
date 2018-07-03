@@ -1,3 +1,4 @@
+from yaml import load
 import websocket
 try:
     import thread
