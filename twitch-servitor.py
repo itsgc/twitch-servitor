@@ -25,6 +25,7 @@ def check_message(ws, message):
             args['username'] = match.group(1)
             args['channel'] = match.group(2)
             args['message'] = match.group(3)
+            args['type'] = "PRIVMSG"
             print args
             return True
 
@@ -32,16 +33,17 @@ def check_usernotice(ws, message):
     if message[0] == "@":
         arg_regx = r"([^=;]*)=([^ ;]*)"
         arg_regx = re.compile(arg_regx, re.UNICODE)
-        args = dict(re.findall(arg_regx, ircMessage[1:]))
+        args = dict(re.findall(arg_regx, message[1:]))
         regex = (
             r'^@[^ ]* :tmi.twitch.tv'
             r' USERNOTICE #(?P<channel>[^ ]*)'  # channel
             r'((?: :)?(?P<message>.*))?')  # message
         regex = re.compile(regex, re.UNICODE)
-        match = re.search(regex, ircMessage)
+        match = re.search(regex, message)
         if match:
             args['channel'] = match.group(1)
             args['message'] = match.group(2)
+            args['type'] = "USERNOTICE"
             print args
             return True
 
@@ -86,7 +88,7 @@ def on_open(ws):
         time.sleep(5)
         ws.send("NICK Karmik")
         time.sleep(1)
-        ws.send("JOIN #day9tv")
+        ws.send("JOIN #ninja")
         time.sleep(1)
         ws.send("CAP REQ :twitch.tv/membership")
         time.sleep(1)
