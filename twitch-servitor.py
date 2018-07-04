@@ -13,7 +13,12 @@ with open('creds.yml', 'r') as credsfile:
 def on_message(ws, message):
     if "PING" in message:
         ws.send("PONG :tmi.twitch.tv")
-    print(message)
+    else:
+        message_type = message.split(":")[-2].split(" ")[-2]
+        message_text = message.split("#lobosjr")[-1].split(":")[-1]
+    print message
+    print message.split(":")[-2]
+    print(message_type + " " + message_text)
 
 def on_error(ws, error):
     print(error)
@@ -28,11 +33,9 @@ def on_open(ws):
         time.sleep(5)
         ws.send(pass_string)
         time.sleep(5)
-        ws.send("NICK twitch-servitor")
-        time.sleep(5)
-        ws.send("JOIN #karmik")
+        ws.send("NICK Karmik")
         time.sleep(1)
-        ws.send("PRIVMSG #karmik :Hello word")
+        ws.send("JOIN #lobosjr")
         time.sleep(1)
         ws.send("CAP REQ :twitch.tv/membership")
         time.sleep(1)
