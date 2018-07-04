@@ -33,6 +33,12 @@ def on_open(ws):
         ws.send("JOIN #karmik")
         time.sleep(1)
         ws.send("PRIVMSG #karmik :Hello word")
+        time.sleep(1)
+        ws.send("CAP REQ :twitch.tv/membership")
+        time.sleep(1)
+        ws.send("CAP REQ :twitch.tv/commands")
+        time.sleep(1)
+        ws.send("CAP REQ :twitch.tv/tags")
     thread.start_new_thread(run, ())
 
 
