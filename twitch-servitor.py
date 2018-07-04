@@ -11,10 +11,8 @@ with open('creds.yml', 'r') as credsfile:
     creds = load(credsfile)
     twitch_token = creds['twitch_irc_token']
 
-def on_message(ws, message):
-    if "PING" in message:
-        ws.send("PONG :tmi.twitch.tv")
-    elif message[0] == "@":
+def check_message(ws, message):
+    if message[0] == "@":
         arg_regx = r"([^=;]*)=([^ ;]*)"
         arg_regx = re.compile(arg_regx, re.UNICODE)
         args = dict(re.findall(arg_regx, message[1:]))
@@ -28,8 +26,44 @@ def on_message(ws, message):
             args['channel'] = match.group(2)
             args['message'] = match.group(3)
             print args
-        else:
-            print "No match found"
+            return True
+
+def check_usernotice(ws, message):
+    if message[0] == "@":
+        arg_regx = r"([^=;]*)=([^ ;]*)"
+        arg_regx = re.compile(arg_regx, re.UNICODE)
+        args = dict(re.findall(arg_regx, ircMessage[1:]))
+        regex = (
+            r'^@[^ ]* :tmi.twitch.tv'
+            r' USERNOTICE #(?P<channel>[^ ]*)'  # channel
+            r'((?: :)?(?P<message>.*))?')  # message
+        regex = re.compile(regex, re.UNICODE)
+        match = re.search(regex, ircMessage)
+        if match:
+            args['channel'] = match.group(1)
+            args['message'] = match.group(2)
+            print args
+            return True
+
+def check_ping(ws, message):
+    if re.search(r"PING :tmi\.twitch\.tv", message):
+        ws.send("PONG :tmi.twitch.tv")
+        return True
+
+def check_error(ws, message):
+    if re.search(r":tmi.twitch.tv NOTICE \* :Error logging i.*", message):
+        ws.close()
+        print("closing session due to logging error")
+
+def on_message(ws, message):
+    if check_message(ws, message):
+        return
+    elif check_ping(ws, message):
+        return
+    elif check_usernotice(ws, message):
+        return
+    elif check_error(ws, message):
+        return
         # message_type = message.split(":")[-2].split(" ")[-2]
         # message_text = message.split("#lobosjr")[-1].split(":")[-1]
     # print args['username'] + " " + args['channel'] + " " + args['message']
