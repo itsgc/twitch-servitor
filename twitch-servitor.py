@@ -1,5 +1,6 @@
 from yaml import load
 import websocket
+import re
 try:
     import thread
 except ImportError:
@@ -13,12 +14,28 @@ with open('creds.yml', 'r') as credsfile:
 def on_message(ws, message):
     if "PING" in message:
         ws.send("PONG :tmi.twitch.tv")
-    else:
-        message_type = message.split(":")[-2].split(" ")[-2]
-        message_text = message.split("#lobosjr")[-1].split(":")[-1]
-    print message
-    print message.split(":")[-2]
-    print(message_type + " " + message_text)
+    elif message[0] == "@":
+        arg_regx = r"([^=;]*)=([^ ;]*)"
+        arg_regx = re.compile(arg_regx, re.UNICODE)
+        args = dict(re.findall(arg_regx, message[1:]))
+        regex = (r'^@[^ ]* :([^!]*)![^!]*@[^.]*.tmi.twitch.tv'  # username
+                     r' PRIVMSG #([^ ]*)'  # channel
+                     r' :(.*)') # message
+        regex = re.compile(regex, re.UNICODE)
+        match = re.search(regex, message)
+        if match:
+            args['username'] = match.group(1)
+            args['channel'] = match.group(2)
+            args['message'] = match.group(3)
+            print args
+        else:
+            print "No match found"
+        # message_type = message.split(":")[-2].split(" ")[-2]
+        # message_text = message.split("#lobosjr")[-1].split(":")[-1]
+    # print args['username'] + " " + args['channel'] + " " + args['message']
+    # print message
+    # print message.split(":")[-2]
+    # print(message_type + " " + message_text)
 
 def on_error(ws, error):
     print(error)
@@ -35,7 +52,7 @@ def on_open(ws):
         time.sleep(5)
         ws.send("NICK Karmik")
         time.sleep(1)
-        ws.send("JOIN #lobosjr")
+        ws.send("JOIN #day9tv")
         time.sleep(1)
         ws.send("CAP REQ :twitch.tv/membership")
         time.sleep(1)
