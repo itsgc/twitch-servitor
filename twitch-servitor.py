@@ -26,7 +26,7 @@ def check_message(ws, message):
             args['channel'] = match.group(2)
             args['message'] = match.group(3)
             args['type'] = "PRIVMSG"
-            print args
+            print args['type'] + " <" + args['username'] + "> " + args['message']
             return True
 
 def check_usernotice(ws, message):
@@ -44,7 +44,10 @@ def check_usernotice(ws, message):
             args['channel'] = match.group(1)
             args['message'] = match.group(2)
             args['type'] = "USERNOTICE"
-            print args
+            system_message = args['system-msg'].split("\s")
+            args['user'] = system_message[0]
+            args['notice-type'] = system_message[2]
+            print args['type'] + " " + args['user'] + " " + args['notice-type'] + " full message:" + " ".join(system_message)
             return True
 
 def check_ping(ws, message):
@@ -58,6 +61,7 @@ def check_error(ws, message):
         print("closing session due to logging error")
 
 def on_message(ws, message):
+    print message
     if check_message(ws, message):
         return
     elif check_ping(ws, message):
@@ -88,7 +92,7 @@ def on_open(ws):
         time.sleep(5)
         ws.send("NICK Karmik")
         time.sleep(1)
-        ws.send("JOIN #ninja")
+        ws.send("JOIN #karmik")
         time.sleep(1)
         ws.send("CAP REQ :twitch.tv/membership")
         time.sleep(1)
