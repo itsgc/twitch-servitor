@@ -36,9 +36,9 @@ def on_open(ws):
         time.sleep(1)
         ws.send("CAP REQ :twitch.tv/membership")
         time.sleep(1)
-        ws.send("CAP REQ :twitch.tv/commands")
-        time.sleep(1)
         ws.send("CAP REQ :twitch.tv/tags")
+        time.sleep(1)
+        ws.send("CAP REQ :twitch.tv/commands")
     thread.start_new_thread(run, ())
 
 
