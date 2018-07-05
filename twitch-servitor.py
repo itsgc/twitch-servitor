@@ -28,6 +28,8 @@ def check_message(ws, message):
             args['type'] = "PRIVMSG"
             print args['type'] + " <" + args['username'] + "> " + args['message']
             return True
+    elif message[0] == ":":
+
 
 def check_usernotice(ws, message):
     if message[0] == "@":
