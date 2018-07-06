@@ -1,0 +1,4 @@
+websocket_irc_server: "ws://irc-ws.chat.twitch.tv:80/"
+websocket_pubsub_server: "wss://pubsub-edge.twitch.tv"
+nickname: "Karmik"
+irc_channel: "#ninja"
