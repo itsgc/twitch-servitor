@@ -98,14 +98,22 @@ def authlistener():
     print subscribe_followers(user_id, auth_creds['client_id'])
     return "OK"
 
-@app.route("/twitch/webhook")
+@app.route("/twitch/webhook", methods = ['GET', 'POST'])
 def webhook():
-    webhook_payload = request.args
-    try:
-        webhook_challenge = webhook_payload['hub.challenge']
-    except:
-        webhook_challenge = "Fail"
+    if request.method == 'GET':
+        webhook_args = request.args
+        try:
+            webhook_challenge = webhook_args['hub.challenge']
+        except:
+            webhook_challenge = "Fail"
 
-    print webhook_payload
-    return webhook_challenge
+        print webhook_payload
+        return webhook_challenge
+    elif request.method == 'POST':
+        if request.json:
+            webhook_body = request.get_json()
+            print webhook_body
+            return "OK"
+
+
 
