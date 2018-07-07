@@ -1,5 +1,6 @@
 import re
 import requests
+import time
 import urllib
 import urlparse
 import websocket
@@ -33,6 +34,20 @@ def get_auth_url(auth_creds):
     # r = requests.get(url=url, params=payload)
     # return urlparse.urljoin(url , urllib.urlencode(payload))
 
+def get_access_tokens(intermediate_code):
+     payload = {
+                "client_id": auth_creds['client_id'],
+                "client_secret": auth_creds['client_secret'],
+                "code": intermediate_code,
+                "grant_type": "authorization_code",
+                "redirect_uri": "https://apple.didgt.info/twitch/authlistener"
+     }
+     url = "https://id.twitch.tv/oauth2/token"
+     r = requests.post(url=url, data=payload)
+     output = json.loads(r.json())
+     print output
+     return output
+
 def get_channel_id(auth_token):
     url = 'https://api.twitch.tv/kraken/channel'
     headers = {'Accept': 'application/vnd.twitchtv.v5+json',
@@ -51,6 +66,7 @@ def index():
 @app.route("/twitch/authlistener")
 def authlistener():
     twitch_code = request.args.get('code', '')
-    print twitch_code
+    twitch_tokens = get_access_tokens(twitch_code)
+    # print get_channel_id(twitch_tokens['access_token'])
     return "OK"
 
