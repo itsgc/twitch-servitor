@@ -45,9 +45,7 @@ def get_access_tokens(intermediate_code):
      }
      url = "https://id.twitch.tv/oauth2/token"
      r = requests.post(url=url, data=payload)
-     output = type(r.json())
-     print output
-     return output
+     return r.json()
 
 def get_channel_id(auth_token):
     url = 'https://api.twitch.tv/kraken/channel'
@@ -68,6 +66,7 @@ def index():
 def authlistener():
     twitch_code = request.args.get('code', '')
     twitch_tokens = get_access_tokens(twitch_code)
+    print twitch_tokens
     # print get_channel_id(twitch_tokens['access_token'])
     return "OK"
 
