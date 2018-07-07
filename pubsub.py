@@ -18,14 +18,13 @@ def make_settings(settingsfile_path):
         return load(settingsfile)
 
 def get_auth_token(auth_creds):
-    grant_type = "client_credentials"
     payload = { "client_id": auth_creds['client_id'],
-                       "client_secret": auth_creds['client_secret'],
-                       "grant_type": grant_type,
-                       "scope": "channel_read" }
-    url = "https://id.twitch.tv/oauth2/token"
-    r = requests.post(url=url, data=payload)
-    return r.json()
+                "redirect_uri": "https://apple.didgt.info",
+                "response_type": "code",
+                "scope": "channel_read" }
+    url = "https://id.twitch.tv/oauth2/authorize"
+    r = requests.get(url=url, params=payload)
+    return r.text
 
 def get_channel_id(auth_token):
     url = 'https://api.twitch.tv/kraken/channel'
@@ -75,6 +74,7 @@ if __name__ == "__main__":
     #                          )
     # ws.on_open = on_open(ws, settings, twitch_token)
     # ws.run_forever(ping_interval=300, ping_timeout=10)
-    auth_token = get_auth_token(auth_creds)['access_token']
-    print get_channel_id(auth_token)
+    # auth_token = get_auth_token(auth_creds)['access_token']
+    print get_auth_token(auth_creds)
+    # print get_channel_id(auth_token)
     # print get_channel_id(twitch_token)
