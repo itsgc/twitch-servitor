@@ -24,8 +24,8 @@ def get_auth_token(auth_creds):
                 "response_type": "code",
                 "scope": "channel_read" }
     url = "https://id.twitch.tv/oauth2/authorize"
-    r = requests.get(url=url, params=payload)
-    return r.text
+    # r = requests.get(url=url, params=payload)
+    print urllib.urlencode(payload)
 
 def get_channel_id(auth_token):
     url = 'https://api.twitch.tv/kraken/channel'
@@ -35,7 +35,11 @@ def get_channel_id(auth_token):
     return r.text
 
 app = Flask(__name__)
+settings = make_settings("settings.yml")
+auth_creds = make_auth("creds.yml")
 
 @app.route("/")
 def index():
-    return "Hello World!"
+    output = get_auth_token(auth_creds)
+    print output
+    return output
