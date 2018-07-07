@@ -25,7 +25,7 @@ def get_auth_token(auth_creds):
                        "scope": "channel_read" }
     url = "https://id.twitch.tv/oauth2/token"
     r = requests.post(url=url, data=payload)
-    return r.text
+    return r.json()
 
 def get_channel_id(auth_token):
     url = 'https://api.twitch.tv/kraken/channel'
@@ -75,5 +75,6 @@ if __name__ == "__main__":
     #                          )
     # ws.on_open = on_open(ws, settings, twitch_token)
     # ws.run_forever(ping_interval=300, ping_timeout=10)
-    print get_auth_token(auth_creds)
+    auth_token = get_auth_token(auth_creds)['access_token']
+    print get_channel_id(auth_token)
     # print get_channel_id(twitch_token)
