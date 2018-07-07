@@ -68,21 +68,22 @@ def get_user_info(auth_token):
     r = requests.get(url=url, headers=headers, params=payload)
     return r.json()
 
-def subscribe_followers(user_id):
+def subscribe_followers(user_id, client_id):
     callback_url = url_for('webhook', _external=True)
+    headers = { "Client-ID": client_id }
     sub_url = "https://api.twitch.tv/helix/webhooks/hub"
-    base_topic_url = "https://api.twitch.tv/helix/users/follow"
-    payload = { "first": 1,
-               "to_id": user_id}
+    base_topic_url = "https://api.twitch.tv/helix/users/follows"
+    payload = { "to_id": user_id }
 
     url = urlparse.urlparse(base_topic_url)
     urllist = [ url.scheme, url.netloc, url.path, None, urllib.urlencode(payload), url.fragment ]
     topic_url = urlparse.urlunparse(urllist)
     subscribe_payload = {"hub.callback": callback_url,
                          "hub.mode": "subscribe",
-                         "hub.topic": topic_url }
-    r = requests.post(url=sub_url, json=payload)
-    return r.json()
+                         "hub.topic": topic_url,
+                         "hub.lease_seconds": 3600}
+    r = requests.post(url=sub_url, headers=headers, json=subscribe_payload)
+    return r.text
 
 @app.route("/")
 def index():
@@ -94,14 +95,12 @@ def authlistener():
     twitch_tokens = get_access_tokens(twitch_code)
     user_data = get_user_info(twitch_tokens['access_token'])
     user_id = int(user_data['data'][0]['id'])
-    print  user_id
-    # print subscribe_followers(user_id)
+    print subscribe_followers(user_id, auth_creds['client_id'])
     return "OK"
 
-@app.route("/twitch/webhook", methods = ['POST'])
+@app.route("/twitch/webhook")
 def webhook():
-    print request.is_json
-    webhook_payload = request.get_json()
+    webhook_payload = request.args
     print webhook_payload
     return "OK"
 
