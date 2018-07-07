@@ -1,3 +1,4 @@
+import json
 import re
 import requests
 import time
@@ -44,7 +45,7 @@ def get_access_tokens(intermediate_code):
      }
      url = "https://id.twitch.tv/oauth2/token"
      r = requests.post(url=url, data=payload)
-     output = json.loads(r.json())
+     output = type(r.json())
      print output
      return output
 
