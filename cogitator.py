@@ -8,6 +8,7 @@ import websocket
 from flask import Flask
 from flask import redirect
 from flask import request
+from flask import url_for
 from yaml import load
 
 try:
@@ -65,9 +66,20 @@ def get_user_info(auth_token):
     r = requests.get(url=url, headers=headers, params=payload)
     return r.json()
 
+def subscribe_followers():
+    callback_url = url_for('webhook')
+    return callback_url
+
 @app.route("/")
 def index():
     return redirect(get_auth_url(auth_creds))
+
+@app.route("/twitch/webhook", methods = ['POST'])
+def webhook():
+    print request.is_json
+    webhook_payload = request.get_json()
+    print webhook_payload
+    return "OK"
 
 @app.route("/twitch/authlistener")
 def authlistener():
@@ -76,5 +88,6 @@ def authlistener():
     user_data = get_user_info(twitch_tokens['access_token'])
     user_id = user_data['data'][0]['id']
     print user_id
+    print subscribe_followers()
     return "OK"
 
