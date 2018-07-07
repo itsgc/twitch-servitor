@@ -56,6 +56,8 @@ def get_channel_id(auth_token):
     return r.text
 
 app = Flask(__name__)
+app.config['SERVER_NAME'] = "apple.didgt.info"
+app.config['PREFERRED_URL_SCHEME'] = "https"
 settings = make_settings("settings.yml")
 auth_creds = make_auth("creds.yml")
 
@@ -67,7 +69,7 @@ def get_user_info(auth_token):
     return r.json()
 
 def subscribe_followers():
-    callback_url = url_for('webhook')
+    callback_url = url_for('webhook', _external=True)
     return callback_url
 
 @app.route("/")
