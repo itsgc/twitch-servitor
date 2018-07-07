@@ -9,12 +9,23 @@ except ImportError:
     import _thread as thread
 import time
 
-with open('creds.yml', 'r') as credsfile:
-    creds = load(credsfile)
-    twitch_token = creds['twitch_irc_token']
+def make_auth(credsfile_path):
+    with open(credsfile_path, 'r') as credsfile:
+        return load(credsfile)
 
-with open('settings.yml', 'r') as settingsfile:
-    settings = load(settingsfile)
+def make_settings(settingsfile_path):
+    with open(settingsfile_path, 'r') as settingsfile:
+        return load(settingsfile)
+
+def get_auth_token(auth_creds):
+    grant_type = "client_credentials"
+    payload = { "client_id": auth_creds['client_id'],
+                       "client_secret": auth_creds['client_secret'],
+                       "grant_type": grant_type,
+                       "scope": "channel_read" }
+    url = "https://id.twitch.tv/oauth2/token"
+    r = requests.post(url=url, data=payload)
+    return r.text
 
 def get_channel_id(auth_token):
     url = 'https://api.twitch.tv/kraken/channel'
@@ -54,6 +65,8 @@ def on_open(ws, settings, auth_token):
 
 if __name__ == "__main__":
     websocket.enableTrace(True)
+    settings = make_settings("settings.yml")
+    auth_creds = make_auth("creds.yml")
     websocket_server = settings['websocket_pubsub_server']
     # ws = websocket.WebSocketApp(websocket_server,
     #                          on_message = on_message,
@@ -62,4 +75,5 @@ if __name__ == "__main__":
     #                          )
     # ws.on_open = on_open(ws, settings, twitch_token)
     # ws.run_forever(ping_interval=300, ping_timeout=10)
-    print get_channel_id(twitch_token)
+    print get_auth_token(auth_creds)
+    # print get_channel_id(twitch_token)
