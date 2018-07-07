@@ -4,6 +4,7 @@ import urllib
 import urlparse
 import websocket
 from flask import Flask
+from flask import redirect
 from flask import request
 from yaml import load
 
@@ -45,9 +46,7 @@ auth_creds = make_auth("creds.yml")
 
 @app.route("/")
 def index():
-    output = get_auth_url(auth_creds)
-    print output
-    return "Booh"
+    return redirect(get_auth_url(auth_creds))
 
 @app.route("/twitch/authlistener")
 def authlistener():
