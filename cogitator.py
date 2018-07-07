@@ -67,6 +67,6 @@ def authlistener():
     twitch_code = request.args.get('code', '')
     twitch_tokens = get_access_tokens(twitch_code)
     print twitch_tokens
-    # print get_channel_id(twitch_tokens['access_token'])
+    print get_channel_id(twitch_tokens['access_token'])
     return "OK"
 
