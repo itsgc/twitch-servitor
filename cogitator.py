@@ -22,12 +22,12 @@ def make_settings(settingsfile_path):
 
 def get_auth_url(auth_creds):
     payload = { "client_id": auth_creds['client_id'],
-                "redirect_uri": "https://apple.didgt.info",
+                "redirect_uri": "https://apple.didgt.info/twitch/authlistener",
                 "response_type": "code",
                 "scope": "channel_read" }
-    url = urlparse.urlsplit("https://id.twitch.tv/oauth2/authorize")
-    print url(query=urllib.urlencode(payload))
-    return url(query=urllib.urlencode(payload))
+    url = urlparse.urlparse("https://id.twitch.tv/oauth2/authorize")
+    urllist = [ url.scheme, url.netloc, url.path, None, urllib.urlencode(payload), url.fragment ]
+    return urlparse.urlunparse(urllist)
     # r = requests.get(url=url, params=payload)
     # return urlparse.urljoin(url , urllib.urlencode(payload))
 
@@ -44,4 +44,13 @@ auth_creds = make_auth("creds.yml")
 
 @app.route("/")
 def index():
-    return get_auth_url(auth_creds)
+    output = get_auth_url(auth_creds)
+    print output
+    return "Booh"
+
+@app.route("param/twitch/authlistener")
+def authlistener():
+    twitch_code = request.args.get('code', '')
+    print twitch_code
+    return "OK"
+
