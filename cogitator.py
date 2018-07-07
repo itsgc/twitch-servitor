@@ -20,14 +20,16 @@ def make_settings(settingsfile_path):
     with open(settingsfile_path, 'r') as settingsfile:
         return load(settingsfile)
 
-def get_auth_token(auth_creds):
+def get_auth_url(auth_creds):
     payload = { "client_id": auth_creds['client_id'],
                 "redirect_uri": "https://apple.didgt.info",
                 "response_type": "code",
                 "scope": "channel_read" }
-    url = "https://id.twitch.tv/oauth2/authorize"
+    url = urlparse.urlsplit("https://id.twitch.tv/oauth2/authorize")
+    print url(query=urllib.urlencode(payload))
+    return url(query=urllib.urlencode(payload))
     # r = requests.get(url=url, params=payload)
-    return urlparse.urljoin(url , urllib.urlencode(payload))
+    # return urlparse.urljoin(url , urllib.urlencode(payload))
 
 def get_channel_id(auth_token):
     url = 'https://api.twitch.tv/kraken/channel'
@@ -42,6 +44,4 @@ auth_creds = make_auth("creds.yml")
 
 @app.route("/")
 def index():
-    output = get_auth_token(auth_creds)
-    print output
-    return output
+    return get_auth_url(auth_creds)
