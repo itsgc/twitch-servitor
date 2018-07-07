@@ -1,9 +1,8 @@
 import re
 import requests
 import websocket
+from flask import Flask
 from yaml import load
-
-from flask import flask
 
 try:
     import thread
