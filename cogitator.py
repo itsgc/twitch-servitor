@@ -4,6 +4,7 @@ import urllib
 import urlparse
 import websocket
 from flask import Flask
+from flask import request
 from yaml import load
 
 try:
@@ -48,7 +49,7 @@ def index():
     print output
     return "Booh"
 
-@app.route("param/twitch/authlistener")
+@app.route("/twitch/authlistener")
 def authlistener():
     twitch_code = request.args.get('code', '')
     print twitch_code
