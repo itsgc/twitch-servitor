@@ -1,5 +1,7 @@
 import re
 import requests
+import urllib
+import urlparse
 import websocket
 from flask import Flask
 from yaml import load
@@ -25,7 +27,7 @@ def get_auth_token(auth_creds):
                 "scope": "channel_read" }
     url = "https://id.twitch.tv/oauth2/authorize"
     # r = requests.get(url=url, params=payload)
-    print urllib.urlencode(payload)
+    return urlparse.urljoin(url , urllib.urlencode(payload))
 
 def get_channel_id(auth_token):
     url = 'https://api.twitch.tv/kraken/channel'
