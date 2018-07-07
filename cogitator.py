@@ -64,7 +64,7 @@ auth_creds = make_auth("creds.yml")
 def get_user_info(auth_token):
     url = "https://api.twitch.tv/helix/users"
     headers = { 'Authorization': 'Bearer ' + auth_token}
-    payload = { "login": "ninja"}
+    payload = { "login": "karmik"}
     r = requests.get(url=url, headers=headers, params=payload)
     return r.json()
 
@@ -101,6 +101,11 @@ def authlistener():
 @app.route("/twitch/webhook")
 def webhook():
     webhook_payload = request.args
+    try:
+        webhook_challenge = webhook_payload['hub.challenge']
+    except:
+        webhook_challenge = "Fail"
+
     print webhook_payload
-    return "OK"
+    return webhook_challenge
 
