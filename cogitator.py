@@ -64,7 +64,7 @@ auth_creds = make_auth("creds.yml")
 def get_user_info(auth_token):
     url = "https://api.twitch.tv/helix/users"
     headers = { 'Authorization': 'Bearer ' + auth_token}
-    payload = { "login": "karmik"}
+    payload = { "login": "ninja"}
     r = requests.get(url=url, headers=headers, params=payload)
     return r.json()
 
