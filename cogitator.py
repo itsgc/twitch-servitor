@@ -58,6 +58,13 @@ app = Flask(__name__)
 settings = make_settings("settings.yml")
 auth_creds = make_auth("creds.yml")
 
+def get_user_info(auth_token):
+    url = "https://api.twitch.tv/helix/users"
+    headers = { 'Authorization': 'Bearer ' + auth_token}
+    payload = { "login": "karmik"}
+    r = requests.get(url=url, headers=headers, params=payload)
+    return r.json()
+
 @app.route("/")
 def index():
     return redirect(get_auth_url(auth_creds))
@@ -66,7 +73,8 @@ def index():
 def authlistener():
     twitch_code = request.args.get('code', '')
     twitch_tokens = get_access_tokens(twitch_code)
-    print twitch_tokens
-    print get_channel_id(twitch_tokens['access_token'])
+    user_data = get_user_info(twitch_tokens['access_token'])
+    user_id = user_data['data'][0]['id']
+    print user_id
     return "OK"
 
