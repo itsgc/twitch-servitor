@@ -105,6 +105,7 @@ venv.bak/
 
 # personal
 creds.yml
+settings.yml
 
 # ide files
 *.idea

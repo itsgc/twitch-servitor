@@ -11,19 +11,13 @@ from flask import request
 from flask import url_for
 from yaml import load
 
+import utils
+
 try:
     import thread
 except ImportError:
     import _thread as thread
 import time
-
-def make_auth(credsfile_path):
-    with open(credsfile_path, 'r') as credsfile:
-        return load(credsfile)
-
-def make_settings(settingsfile_path):
-    with open(settingsfile_path, 'r') as settingsfile:
-        return load(settingsfile)
 
 def get_auth_url(auth_creds):
     payload = { "client_id": auth_creds['client_id'],
@@ -33,8 +27,6 @@ def get_auth_url(auth_creds):
     url = urlparse.urlparse("https://id.twitch.tv/oauth2/authorize")
     urllist = [ url.scheme, url.netloc, url.path, None, urllib.urlencode(payload), url.fragment ]
     return urlparse.urlunparse(urllist)
-    # r = requests.get(url=url, params=payload)
-    # return urlparse.urljoin(url , urllib.urlencode(payload))
 
 def get_access_tokens(intermediate_code):
      payload = {
@@ -58,8 +50,8 @@ def get_channel_id(auth_token):
 app = Flask(__name__)
 app.config['SERVER_NAME'] = "apple.didgt.info"
 app.config['PREFERRED_URL_SCHEME'] = "https"
-settings = make_settings("settings.yml")
-auth_creds = make_auth("creds.yml")
+settings = utils.make_settings("settings.yml")
+auth_creds = utils.make_auth("creds.yml")
 
 def get_user_info(auth_token):
     url = "https://api.twitch.tv/helix/users"
@@ -106,14 +98,9 @@ def webhook():
             webhook_challenge = webhook_args['hub.challenge']
         except:
             webhook_challenge = "Fail"
-
-        print webhook_challenge
         return webhook_challenge
     elif request.method == 'POST':
         if request.json:
             webhook_body = request.get_json()
-            print json.dumps(webhook_body, indent=4, sort_keys=True)
+            print json.dumps(webhook_body, indent=3, sort_keys=True)
             return "OK"
-
-
-

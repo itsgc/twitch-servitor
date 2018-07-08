@@ -1,3 +1,4 @@
+import json
 import re
 import requests
 import websocket
@@ -34,7 +35,13 @@ def get_channel_id(auth_token):
     return r.text
 
 def check_message(ws, message):
-    print message
+    try:
+        parsed_message = json.loads(message)
+        print parsed_message['topic']
+        print json.dumps(parsed_message['message'])
+    except:
+        print "failed parsing"
+        print message
     return True
 
 def check_error(ws, message):
@@ -53,12 +60,10 @@ def on_error(ws, error):
 def on_close(ws):
     print("### closed ###")
 
-def on_open(ws, settings, auth_token):
+def on_open(ws, settings):
     def run(*args):
-        time.sleep(5)
         time.sleep(1)
-        ws.send(irc_channel_command)
-        time.sleep(1)
+        ws.send(json.dumps("bleep"))
     thread.start_new_thread(run, ())
 
 
@@ -66,14 +71,12 @@ if __name__ == "__main__":
     websocket.enableTrace(True)
     settings = make_settings("settings.yml")
     auth_creds = make_auth("creds.yml")
-    websocket_server = settings['websocket_pubsub_server']
-    # ws = websocket.WebSocketApp(websocket_server,
-    #                          on_message = on_message,
-    #                          on_error = on_error,
-    #                          on_close = on_close,
-    #                          )
-    # ws.on_open = on_open(ws, settings, twitch_token)
-    # ws.run_forever(ping_interval=300, ping_timeout=10)
-    # auth_token = get_auth_token(auth_creds)['access_token']
-    # print get_channel_id(auth_token)
-    # print get_channel_id(twitch_token)
+    # websocket_server = settings['websocket_pubsub_server']
+    websocket_server = "ws://localhost:8000"
+    ws = websocket.WebSocketApp(websocket_server,
+                                on_message = on_message,
+                                on_error = on_error,
+                                on_close = on_close,
+                               )
+    ws.on_open = on_open(ws, settings)
+    ws.run_forever()
