@@ -107,12 +107,12 @@ def webhook():
         except:
             webhook_challenge = "Fail"
 
-        print webhook_payload
+        print webhook_challenge
         return webhook_challenge
     elif request.method == 'POST':
         if request.json:
             webhook_body = request.get_json()
-            print webhook_body
+            print json.dumps(webhook_body, indent=4, sort_keys=True)
             return "OK"
 
 
