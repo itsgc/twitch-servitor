@@ -37,8 +37,7 @@ def get_channel_id(auth_token):
 def check_message(ws, message):
     try:
         parsed_message = json.loads(message)
-        print parsed_message['topic']
-        print json.dumps(parsed_message['message'])
+        print json.dumps(parsed_message['message'], ensure_ascii=False)
     except:
         print "failed parsing"
         print message

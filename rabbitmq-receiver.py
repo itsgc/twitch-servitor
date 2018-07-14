@@ -18,9 +18,9 @@ def send_ws_message(message):
 def callback(ch, method, properties, body):
     aqmp_payload = json.loads(body)
     message_payload = {"topic": method.routing_key,
-                       "message": json.dumps(aqmp_payload)}
+                       "message": aqmp_payload}
     print(message_payload)
-    send_ws_message(json.dumps(message_payload))
+    send_ws_message(json.dumps(message_payload, ensure_ascii=False))
 
 
 if __name__ == "__main__":

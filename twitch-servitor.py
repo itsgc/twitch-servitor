@@ -69,6 +69,7 @@ def check_message(ws, message):
                     args['sub-type-username'] = args['message'].split(" ")[0]
                     print args['type'] + " " + args['sub-type'] + " " + args['sub-type-username']
                     send_aqmp_notice(args)
+                    print "sent something"
                 else:
                     print args['type'] + " " + args['username'] + " " + args['message']
             else:
