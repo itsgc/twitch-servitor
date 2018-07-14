@@ -102,5 +102,5 @@ def webhook():
     elif request.method == 'POST':
         if request.json:
             webhook_body = request.get_json()
-            print json.dumps(webhook_body, indent=3, sort_keys=True)
+            print json.dumps(webhook_body, indent=4, sort_keys=True)
             return "OK"
