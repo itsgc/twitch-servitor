@@ -56,7 +56,7 @@ def send_aqmp_notice(message):
     routing_key = "topic.twitch.follows"
     message = { "type": message['sub-type'],
                 "username": message['sub-type-username'],
-                "message": message['message']}
+                "message": json.dumps(message['message'])}
     channel.basic_publish(exchange='topic_twitch_servitor',
                       routing_key=routing_key,
                       body=json.dumps(message, ensure_ascii=False))
@@ -123,5 +123,5 @@ def webhook():
             payload = { "sub-type": "follow",
                         "sub-type-username": user_data['data'][0]['display_name'],
                         "message": user_data['data'][0]['profile_image_url']}
-            send_aqmp_notice(json.dumsp(payload))
+            send_aqmp_notice(payload)
             return "OK"
