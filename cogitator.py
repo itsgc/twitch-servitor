@@ -53,10 +53,10 @@ app.config['PREFERRED_URL_SCHEME'] = "https"
 settings = utils.make_settings("settings.yml")
 auth_creds = utils.make_auth("creds.yml")
 
-def get_user_info(auth_token):
+def get_user_info(auth_token, type, value):
     url = "https://api.twitch.tv/helix/users"
     headers = { 'Authorization': 'Bearer ' + auth_token}
-    payload = { "login": "karmik"}
+    payload = { type: value}
     r = requests.get(url=url, headers=headers, params=payload)
     return r.json()
 
@@ -85,7 +85,7 @@ def index():
 def authlistener():
     twitch_code = request.args.get('code', '')
     twitch_tokens = get_access_tokens(twitch_code)
-    user_data = get_user_info(twitch_tokens['access_token'])
+    user_data = get_user_info(twitch_tokens['access_token'], type="login", value="karmik")
     user_id = int(user_data['data'][0]['id'])
     print subscribe_followers(user_id, auth_creds['client_id'])
     return "OK"
@@ -102,5 +102,7 @@ def webhook():
     elif request.method == 'POST':
         if request.json:
             webhook_body = request.get_json()
+            user_data = get_user_info(auth_creds['twitch_irc_token'], type="id", value=webhook_body['data']['from_id'])
             print json.dumps(webhook_body, indent=4, sort_keys=True)
+            print json.dumps(user_data)
             return "OK"
