@@ -1,4 +1,5 @@
 import json
+import pika
 import re
 import requests
 import time
@@ -46,6 +47,20 @@ def get_channel_id(auth_token):
                'Authorization': 'OAuth ' + auth_token}
     r = requests.get(url=url, headers=headers)
     return r.text
+
+def send_aqmp_notice(message):
+    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    channel = connection.channel()
+    channel.exchange_declare(exchange="topic_twitch_servitor",
+                         exchange_type="topic")
+    routing_key = "topic.twitch.follows"
+    message = { "type": message['sub-type'],
+                "username": message['sub-type-username'],
+                "message": message['message']}
+    channel.basic_publish(exchange='topic_twitch_servitor',
+                      routing_key=routing_key,
+                      body=json.dumps(message, ensure_ascii=False))
+    connection.close()
 
 app = Flask(__name__)
 app.config['SERVER_NAME'] = "apple.didgt.info"
@@ -105,4 +120,8 @@ def webhook():
             user_data = get_user_info(auth_creds['twitch_irc_token'], type="id", value=webhook_body['data']['from_id'])
             print json.dumps(webhook_body, indent=4, sort_keys=True)
             print json.dumps(user_data)
+            payload = { "sub-type": "follow",
+                        "sub-type-username": user_data['data'][0]['display_name'],
+                        "message": user_data['data'][0]['profile_image_url']}
+            send_aqmp_notice(json.dumsp(payload))
             return "OK"
