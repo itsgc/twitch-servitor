@@ -30,7 +30,7 @@ def index():
 
 @app.route("/auth")
 def auth():
-    return redirect(toolkit.get_auth_url)
+    return redirect(toolkit.get_auth_url())
 
 @app.route("/twitch/authlistener")
 def authlistener():

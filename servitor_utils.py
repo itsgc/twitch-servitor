@@ -1,5 +1,6 @@
 import pika
 import requests
+import urllib
 import urlparse
 import yaml
 
@@ -33,6 +34,8 @@ class TwitchTools():
     def __init__(self, auth_data):
         self.description = 'Consumes Twitch v5 API'
         self.domain = "twitch.tv"
+        self.client_id = auth_data['client_id']
+        self.client_secret = auth_data['client_secret']
         self.headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/vnd.twitchtv.v5+json',
@@ -64,8 +67,7 @@ class TwitchTools():
         return r.json()
 
     def get_auth_url(self):
-        client_id = self.auth_data['client_id']
-        payload = { "client_id": client_id,
+        payload = { "client_id": self.client_id,
                     "redirect_uri": self.auth_listener,
                     "response_type": "code",
                     "scope": "channel_read" }
@@ -75,11 +77,9 @@ class TwitchTools():
         return urlparse.urlunparse(urllist)
 
     def get_app_token(self, scope):
-        client_id = self.auth_data['client_id']
-        client_secret = self.auth_data['client_secret']
         grant_type = "client_credentials"
-        payload = { 'client_id': client_id,
-                    'client_secret': client_secret,
+        payload = { 'client_id': self.client_id,
+                    'client_secret': self.client_secret,
                     'grant_type': grant_type}
         url = "https://id.twitch.tv/oauth2/token"
         if scope is not None:
@@ -88,13 +88,11 @@ class TwitchTools():
         return app_token
 
     def get_access_tokens(self, intermediate_code):
-        client_id = self.auth_data['client_id']
-        client_secret = self.auth_data['client_secret']
         grant_type = "authorization_code"
         redirect_uri = self.auth_listener
         payload = {
-                "client_id": client_id,
-                "client_secret": client_secret,
+                "client_id": self.client_id,
+                "client_secret": self.client_secret,
                 "code": intermediate_code,
                 "grant_type": grant_type,
                 "redirect_uri": redirect_uri
