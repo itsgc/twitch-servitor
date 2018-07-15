@@ -55,9 +55,6 @@ def on_close(ws):
 
 def on_open(ws, settings, auth_token):
     def run(*args):
-        time.sleep(5)
-        time.sleep(1)
-        ws.send(irc_channel_command)
         time.sleep(1)
     thread.start_new_thread(run, ())
 
@@ -67,13 +64,10 @@ if __name__ == "__main__":
     settings = make_settings("settings.yml")
     auth_creds = make_auth("creds.yml")
     websocket_server = settings['websocket_pubsub_server']
-    # ws = websocket.WebSocketApp(websocket_server,
-    #                          on_message = on_message,
-    #                          on_error = on_error,
-    #                          on_close = on_close,
-    #                          )
-    # ws.on_open = on_open(ws, settings, twitch_token)
-    # ws.run_forever(ping_interval=300, ping_timeout=10)
-    # auth_token = get_auth_token(auth_creds)['access_token']
-    # print get_channel_id(auth_token)
-    # print get_channel_id(twitch_token)
+    ws = websocket.WebSocketApp(websocket_server,
+                             on_message = on_message,
+                             on_error = on_error,
+                             on_close = on_close,
+                             )
+    ws.on_open = on_open(ws, settings, twitch_token)
+    ws.run_forever(ping_interval=300, ping_timeout=10)
