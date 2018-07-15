@@ -21,13 +21,12 @@ app.config['SERVER_NAME'] = "apple.didgt.info"
 app.config['PREFERRED_URL_SCHEME'] = "https"
 settings = servitor_utils.make_settings("settings.yml")
 auth_data = servitor_utils.make_auth("creds.yml")
+auth_data['auth_endpoint'] = "https://apple.didgt.info/twitch/authlistener"
+toolkit = servitor_utils.TwitchTools(auth_data)
 
 @app.route("/")
 def index():
     return "OK"
-
-auth_data['auth_endpoint'] = url_for('authlistener', _external=True)
-toolkit = servitor_utils.TwitchTools(auth_data)
 
 @app.route("/auth")
 def auth():

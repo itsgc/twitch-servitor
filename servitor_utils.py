@@ -39,7 +39,7 @@ class TwitchTools():
             # 'Authorization': 'OAuth ' + auth_token,
             # 'Authorization': 'Bearer ' + auth_token
         }
-        self.jar = requests.cookies.RequestCookieJar()
+        self.jar = requests.cookies.RequestsCookieJar()
         self.session = requests.Session()
         self.auth_listener = auth_data['auth_endpoint']
         # self.jar.set('placeholder_cookie', self.auth_token, domain=self.domain,
