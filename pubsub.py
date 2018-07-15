@@ -58,6 +58,12 @@ def on_open(ws, settings, auth_token):
         time.sleep(1)
     thread.start_new_thread(run, ())
 
+with open('creds.yml', 'r') as credsfile:
+    creds = load(credsfile)
+    twitch_token = creds['twitch_irc_token']
+
+with open('settings.yml', 'r') as settingsfile:
+    settings = load(settingsfile)
 
 if __name__ == "__main__":
     websocket.enableTrace(True)
