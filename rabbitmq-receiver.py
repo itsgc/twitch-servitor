@@ -3,10 +3,11 @@ import json
 import pika
 import requests
 import time
+import twitch_utils
 import websocket
 
-import utils
-
+settings = twitch_utils.make_settings("settings.yml")
+auth_creds = twitch_utils.make_auth("creds.yml")
 
 def send_ws_message(message):
     websocket_server = "ws://localhost:8000"
@@ -24,8 +25,7 @@ def callback(ch, method, properties, body):
 
 
 if __name__ == "__main__":
-    settings = utils.make_settings("settings.yml")
-    auth_creds = utils.make_auth("creds.yml")
+
     connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
     channel = connection.channel()
     login_message = {"type": "status",

@@ -49,15 +49,18 @@ class TwitchTools():
         # self.jar.set('placeholder_cookie', self.auth_token, domain=self.domain,
         # path='placeholder_path')
 
-    def _get(self, url=None, parameters=None):
+    def _get(self, url=None, parameters=None, response="text"):
         if parameters is None:
             r = self.session.get(url=url, headers=self.headers, cookies=self.jar)
         else:
             r = self.session.get(url=url, params=parameters, headers=self.headers,
                                  cookies=self.jar)
-        return r.json()
+        if response == "text":
+            return r.text
+        elif response == "json":
+            return r.json()
 
-    def _post(self, url=None, parameters=None, payload=None):
+    def _post(self, url=None, parameters=None, payload=None, response="json"):
         if parameters is None:
             r = self.session.post(url=url, headers=self.headers, cookies=self.jar,
                                   data=payload)
@@ -65,7 +68,10 @@ class TwitchTools():
             r = self.session.post(url=url, headers=self.headers,
                                   cookies=self.jar, params=parameters,
                                   data=payload)
-        return r.json()
+        if response == "text":
+            return r.text
+        elif response == "json":
+            return r.json()
 
     def get_auth_url(self):
         payload = { "client_id": self.client_id,
@@ -100,17 +106,14 @@ class TwitchTools():
         }
         url = "https://id.twitch.tv/oauth2/token"
         access_token = self._post(url=url, parameters=payload, payload=payload)
-        print access_token
         return access_token
 
     def get_user_info(self, auth_token, type, value):
         url = "https://api.twitch.tv/helix/users"
         self.headers['Authorization'] = 'Bearer ' + auth_token
-        print self.headers
         payload = {type: value}
         user_info = self._get(url=url, parameters=payload)
-        print user_info
-        return user_info
+        return json.loads(user_info)
 
     def get_channel_id(auth_token):
         url = 'https://api.twitch.tv/kraken/channel'
@@ -131,5 +134,6 @@ class TwitchTools():
                              "hub.mode": "subscribe",
                              "hub.topic": topic_url,
                              "hub.lease_seconds": 3600}
-        subscribe = self._post(url=sub_url, payload=json.dumps(subscribe_payload))
+        subscribe = self._post(url=sub_url, payload=json.dumps(subscribe_payload),
+                               response="text")
         return subscribe

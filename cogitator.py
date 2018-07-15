@@ -39,8 +39,8 @@ def authlistener():
     user_data = toolkit.get_user_info(twitch_tokens['access_token'],
                                       type="login", value="karmik")
     user_id = int(user_data['data'][0]['id'])
-    print toolkit.subscribe_followers(user_id,
-                                      callback_url=url_for('webhook', _external=True))
+    toolkit.subscribe_followers(user_id,
+                                callback_url=url_for('webhook', _external=True))
     return "OK"
 
 @app.route("/twitch/webhook", methods = ['GET', 'POST'])
@@ -55,11 +55,9 @@ def webhook():
     elif request.method == 'POST':
         if request.json:
             webhook_body = request.get_json()
-            user_data = toolkit.get_user_info(auth_creds['twitch_irc_token'], type="id", value=webhook_body['data']['from_id'])
-            print json.dumps(webhook_body, indent=4, sort_keys=True)
-            print json.dumps(user_data)
+            user_data = toolkit.get_user_info(auth_data['twitch_irc_token'], type="id", value=webhook_body['data']['from_id'])
             payload = { "sub-type": "FOLLOW",
                         "sub-type-username": user_data['data'][0]['display_name'],
                         "message": user_data['data'][0]['profile_image_url']}
-            toolkit.send_aqmp_notice(payload, topic="twitch.topic.follows")
+            servitor_utils.send_aqmp_notice(payload, topic="twitch.topic.follows")
             return "OK"
