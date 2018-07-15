@@ -5,8 +5,8 @@ websocket_local_port: 80
 aqmp_server: localhost
 aqmp_exchange: "topic_twitch_servitor"
 topics:
-  - "topic.twitch.follows"
-  - "topic.twitch.subscriptions"
-  - "topic.twitch.hosts"
+  webhook: "topic.twitch.follows"
+  pubsub: "topic.twitch.subscriptions"
+  irc: "topic.twitch.hosts"
 nickname: "Karmik"
 irc_channel: "#karmik"

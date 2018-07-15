@@ -1,38 +1,14 @@
 import json
 import re
-import requests
 import websocket
-from yaml import load
+
+import servitor_utils
 
 try:
     import thread
 except ImportError:
     import _thread as thread
 import time
-
-def make_auth(credsfile_path):
-    with open(credsfile_path, 'r') as credsfile:
-        return load(credsfile)
-
-def make_settings(settingsfile_path):
-    with open(settingsfile_path, 'r') as settingsfile:
-        return load(settingsfile)
-
-def get_auth_token(auth_creds):
-    payload = { "client_id": auth_creds['client_id'],
-                "redirect_uri": "https://apple.didgt.info",
-                "response_type": "code",
-                "scope": "channel_read" }
-    url = "https://id.twitch.tv/oauth2/authorize"
-    r = requests.get(url=url, params=payload)
-    return r.text
-
-def get_channel_id(auth_token):
-    url = 'https://api.twitch.tv/kraken/channel'
-    headers = {'Accept': 'application/vnd.twitchtv.v5+json',
-               'Authorization': 'OAuth ' + auth_token}
-    r = requests.get(url=url, headers=headers)
-    return r.text
 
 def check_message(ws, message):
     try:
@@ -68,9 +44,8 @@ def on_open(ws, settings):
 
 if __name__ == "__main__":
     websocket.enableTrace(True)
-    settings = make_settings("settings.yml")
-    auth_creds = make_auth("creds.yml")
-    # websocket_server = settings['websocket_pubsub_server']
+    settings = servitor_utils.make_settings("settings.yml")
+    auth_creds = servitor_utils.make_auth("creds.yml")
     websocket_server = "ws://localhost:8000"
     ws = websocket.WebSocketApp(websocket_server,
                                 on_message = on_message,

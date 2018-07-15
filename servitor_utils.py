@@ -22,6 +22,9 @@ def send_aqmp_notice(message, topic):
     message = { "type": message['sub-type'],
                 "username": message['sub-type-username'],
                 "message": message['message']}
+    print "Sending this:"
+    print routing_key
+    print message
     channel.basic_publish(exchange='topic_twitch_servitor',
                       routing_key=routing_key,
                       body=json.dumps(message, ensure_ascii=False))

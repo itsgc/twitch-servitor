@@ -59,5 +59,5 @@ def webhook():
             payload = { "sub-type": "FOLLOW",
                         "sub-type-username": user_data['data'][0]['display_name'],
                         "message": user_data['data'][0]['profile_image_url']}
-            servitor_utils.send_aqmp_notice(payload, topic="twitch.topic.follows")
+            servitor_utils.send_aqmp_notice(payload, topic=settings['topics']['webhook'])
             return "OK"

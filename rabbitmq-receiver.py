@@ -3,11 +3,12 @@ import json
 import pika
 import requests
 import time
-import twitch_utils
 import websocket
 
-settings = twitch_utils.make_settings("settings.yml")
-auth_creds = twitch_utils.make_auth("creds.yml")
+import servitor_utils
+
+settings = servitor_utils.make_settings("settings.yml")
+auth_creds = servitor_utils.make_auth("creds.yml")
 
 def send_ws_message(message):
     websocket_server = "ws://localhost:8000"
@@ -20,12 +21,10 @@ def callback(ch, method, properties, body):
     aqmp_payload = json.loads(body)
     message_payload = {"topic": method.routing_key,
                        "message": aqmp_payload}
-    print(message_payload)
     send_ws_message(json.dumps(message_payload, ensure_ascii=False))
 
 
 if __name__ == "__main__":
-
     connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
     channel = connection.channel()
     login_message = {"type": "status",
@@ -43,7 +42,6 @@ if __name__ == "__main__":
         queue_subscribe_message = {"topic": "status",
                                    "message": "rabbitmq-receiver subscribed to {}".format(binding_key)}
         send_ws_message(json.dumps(queue_subscribe_message))
-
     channel.basic_consume(callback, queue=queue_name,
                           no_ack=True)
     channel.start_consuming()
