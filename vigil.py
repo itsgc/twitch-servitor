@@ -3,7 +3,8 @@ import pika
 import re
 import time
 import websocket
-from yaml import load
+
+import servitor_utils
 
 try:
     import thread
@@ -11,28 +12,8 @@ except ImportError:
     import _thread as thread
 import time
 
-with open('creds.yml', 'r') as credsfile:
-    creds = load(credsfile)
-    twitch_token = creds['twitch_irc_token']
-
-with open('settings.yml', 'r') as settingsfile:
-    settings = load(settingsfile)
-
-
-def send_aqmp_notice(message):
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-    channel = connection.channel()
-    channel.exchange_declare(exchange="topic_twitch_servitor",
-                         exchange_type="topic")
-    routing_key = "topic.twitch.hosts"
-    message = { "type": message['sub-type'],
-                "username": message['sub-type-username'],
-                "message": message['message']}
-    channel.basic_publish(exchange='topic_twitch_servitor',
-                      routing_key=routing_key,
-                      body=json.dumps(message, ensure_ascii=False))
-    connection.close()
-
+settings = servitor_utils.make_settings("settings.yml")
+auth_data = servitor_utils.make_auth("creds.yml")
 
 def check_message(ws, message):
     if message[0] == "@":
@@ -68,7 +49,7 @@ def check_message(ws, message):
                     args['sub-type'] = "HOST"
                     args['sub-type-username'] = args['message'].split(" ")[0]
                     print args['type'] + " " + args['sub-type'] + " " + args['sub-type-username']
-                    send_aqmp_notice(args)
+                    servitor_utils.send_aqmp_notice(args, topic=settings['topics']['irc'])
                     print "sent something"
                 else:
                     print args['type'] + " " + args['username'] + " " + args['message']
@@ -113,7 +94,6 @@ def check_usernotice(ws, message):
                 args['sub-type'] = "OTHER"
             print args['type'] + " " + args['user'] + " " + args['sub-type'] + " full message:" + re.sub(r'\\s', ' ', args['system-msg'])
             return True
-
 
 def check_ping(ws, message):
     if re.search(r"PING :tmi\.twitch\.tv", message):
@@ -162,6 +142,7 @@ def on_open(ws, settings, auth_token):
 
 
 if __name__ == "__main__":
+    twitch_token = auth_data['twitch_irc_token']
     websocket.enableTrace(True)
     websocket_server = settings['websocket_irc_server']
     ws = websocket.WebSocketApp(websocket_server,
