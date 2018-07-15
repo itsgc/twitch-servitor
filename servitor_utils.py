@@ -1,3 +1,4 @@
+import json
 import pika
 import requests
 import urllib
@@ -117,7 +118,7 @@ class TwitchTools():
         channel_id = self._get(url=url, headers=headers)
         return channel_id
 
-    def subscribe_followers(user_id, callback_url):
+    def subscribe_followers(self, user_id, callback_url):
         self.headers['Client-ID'] = self.client_id
         sub_url = "https://api.twitch.tv/helix/webhooks/hub"
         base_topic_url = "https://api.twitch.tv/helix/users/follows"

@@ -36,10 +36,11 @@ def auth():
 def authlistener():
     twitch_code = request.args.get('code', '')
     twitch_tokens = toolkit.get_access_tokens(twitch_code)
-    user_data = toolkit.get_user_info(twitch_tokens['access_token'], type="login", value="karmik")
+    user_data = toolkit.get_user_info(twitch_tokens['access_token'],
+                                      type="login", value="karmik")
     user_id = int(user_data['data'][0]['id'])
-    callback_url = url_for('webhook', _external=True)
-    print toolkit.subscribe_followers(user_id, callback_url=callback_url)
+    print toolkit.subscribe_followers(user_id,
+                                      callback_url=url_for('webhook', _external=True))
     return "OK"
 
 @app.route("/twitch/webhook", methods = ['GET', 'POST'])
