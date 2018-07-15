@@ -49,7 +49,7 @@ def check_message(ws, message):
                     args['sub-type'] = "HOST"
                     args['sub-type-username'] = args['message'].split(" ")[0]
                     print args['type'] + " " + args['sub-type'] + " " + args['sub-type-username']
-                    servitor_utils.send_aqmp_notice(args, topic=settings['topics']['irc'])
+                    servitor_utils.send_amqp_notice(args, topic=settings['topics']['irc'])
                     print "sent something"
                 else:
                     print args['type'] + " " + args['username'] + " " + args['message']

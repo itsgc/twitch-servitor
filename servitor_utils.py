@@ -13,7 +13,7 @@ def make_settings(settingsfile_path):
     with open(settingsfile_path, 'r') as settingsfile:
         return yaml.load(settingsfile)
 
-def send_aqmp_notice(message, topic):
+def send_amqp_notice(message, topic):
     connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
     channel = connection.channel()
     channel.exchange_declare(exchange="topic_twitch_servitor",
@@ -76,11 +76,18 @@ class TwitchTools():
         elif response == "json":
             return r.json()
 
-    def get_auth_url(self):
+    def get_auth_url(self, type=None):
+        if type == "webhook":
+            scope = "channel_read"
+        elif type == "pubsub":
+            scope = "channel_subscriptions"
+        elif type == "irc":
+            scope = "chat_login"
+
         payload = { "client_id": self.client_id,
                     "redirect_uri": self.auth_listener,
                     "response_type": "code",
-                    "scope": "channel_read" }
+                    "scope": scope }
         url = urlparse.urlparse("https://id.twitch.tv/oauth2/authorize")
         urllist = [ url.scheme, url.netloc, url.path, None, urllib.urlencode(payload),
                     url.fragment ]
@@ -94,7 +101,8 @@ class TwitchTools():
         url = "https://id.twitch.tv/oauth2/token"
         if scope is not None:
             payload['scope'] = scope
-        app_token = self._post(url=url, payload=payload)
+        app_token = self._post(url=url, parameters=payload, payload=payload)
+        print json.dumps(app_token)
         return app_token
 
     def get_access_tokens(self, intermediate_code):
@@ -118,7 +126,7 @@ class TwitchTools():
         user_info = self._get(url=url, parameters=payload)
         return json.loads(user_info)
 
-    def get_channel_id(auth_token):
+    def get_channel_id(self, auth_token):
         url = 'https://api.twitch.tv/kraken/channel'
         self.headers['Authorization'] =  'OAuth ' + auth_token
         channel_id = self._get(url=url, headers=headers)

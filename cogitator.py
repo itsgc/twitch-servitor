@@ -30,18 +30,24 @@ def index():
 
 @app.route("/auth")
 def auth():
-    return redirect(toolkit.get_auth_url())
+    return redirect(toolkit.get_auth_url(type=request.args.get('type', '')))
 
 @app.route("/twitch/authlistener")
 def authlistener():
     twitch_code = request.args.get('code', '')
+    scope = request.args.get('scope', '')
     twitch_tokens = toolkit.get_access_tokens(twitch_code)
-    user_data = toolkit.get_user_info(twitch_tokens['access_token'],
+    if scope == "channel_read":
+        user_data = toolkit.get_user_info(twitch_tokens['access_token'],
                                       type="login", value="karmik")
-    user_id = int(user_data['data'][0]['id'])
-    toolkit.subscribe_followers(user_id,
-                                callback_url=url_for('webhook', _external=True))
-    return "OK"
+        user_id = int(user_data['data'][0]['id'])
+        toolkit.subscribe_followers(user_id,
+                                    callback_url=url_for('webhook', _external=True))
+
+        return "OK"
+    # elif scope == "channel_subscriptions":
+    #    # This is a terrible idea.
+    #    return json.dumps(twitch_tokens)
 
 @app.route("/twitch/webhook", methods = ['GET', 'POST'])
 def webhook():
@@ -59,5 +65,5 @@ def webhook():
             payload = { "sub-type": "FOLLOW",
                         "sub-type-username": user_data['data'][0]['display_name'],
                         "message": user_data['data'][0]['profile_image_url']}
-            servitor_utils.send_aqmp_notice(payload, topic=settings['topics']['webhook'])
+            servitor_utils.send_amqp_notice(payload, topic=settings['topics']['webhook'])
             return "OK"

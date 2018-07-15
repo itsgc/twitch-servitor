@@ -1,7 +1,9 @@
+import json
 import re
-import requests
 import websocket
 from yaml import load
+
+import servitor_utils
 
 try:
     import thread
@@ -9,32 +11,33 @@ except ImportError:
     import _thread as thread
 import time
 
-def make_auth(credsfile_path):
-    with open(credsfile_path, 'r') as credsfile:
-        return load(credsfile)
 
-def make_settings(settingsfile_path):
-    with open(settingsfile_path, 'r') as settingsfile:
-        return load(settingsfile)
-
-def get_auth_token(auth_creds):
-    payload = { "client_id": auth_creds['client_id'],
-                "redirect_uri": "https://apple.didgt.info",
-                "response_type": "code",
-                "scope": "channel_read" }
-    url = "https://id.twitch.tv/oauth2/authorize"
-    r = requests.get(url=url, params=payload)
-    return r.text
-
-def get_channel_id(auth_token):
-    url = 'https://api.twitch.tv/kraken/channel'
-    headers = {'Accept': 'application/vnd.twitchtv.v5+json',
-               'Authorization': 'OAuth ' + auth_token}
-    r = requests.get(url=url, headers=headers)
-    return r.text
+settings = servitor_utils.make_settings("settings.yml")
+auth_data = servitor_utils.make_auth("creds.yml")
 
 def check_message(ws, message):
-    print message
+    try:
+        parsed_message = json.loads(message)
+        if parsed_message['type'] == "MESSAGE":
+            sub_payload = parsed_message['data']['message']
+            sub_type = sub_payload['context']
+            sub_data = {"type": sub_type,
+                        "months": sub_payload['months'],
+                        "message": sub_payload['sub_message']['message']}
+
+            if "subgift" in sub_type:
+                recipient = sub_payload['recipient_display_name']
+                sub_data['recipient'] = recipient
+
+            amqp_payload = {"type": "pubsub",
+                            "sub-type": "SUBSCRIPTION",
+                            "sub-type-username": sub_payload['display_name'],
+                            "message": sub_data}
+            servitor_utils.send_amqp_notice(amqp_payload, topic=settings['topics']['pubsub'])
+        print parsed_message
+    except Exception as e:
+        print "failed parsing message: {}".format(e)
+
     return True
 
 def check_error(ws, message):
@@ -56,20 +59,24 @@ def on_close(ws):
 def on_open(ws, settings, auth_token):
     def run(*args):
         time.sleep(1)
+        request_channel_subs = "channel-subscribe-events-v1." + settings['channel_id']
+        payload = {
+                    "type": "LISTEN",
+                    "data": {
+                        "topics": [ request_channel_subs ],
+                        "auth_token": auth_token
+                    }
+                  }
+        ws.send(json.dumps(payload))
     thread.start_new_thread(run, ())
-
-with open('creds.yml', 'r') as credsfile:
-    creds = load(credsfile)
-    twitch_token = creds['twitch_irc_token']
-
-with open('settings.yml', 'r') as settingsfile:
-    settings = load(settingsfile)
 
 if __name__ == "__main__":
     websocket.enableTrace(True)
-    settings = make_settings("settings.yml")
-    auth_creds = make_auth("creds.yml")
+    auth_data['auth_endpoint'] = None
+    toolkit = servitor_utils.TwitchTools(auth_data)
     websocket_server = settings['websocket_pubsub_server']
+    twitch_token = auth_data['tmp_pubsub_token']
+    # twitch_token = toolkit.get_app_token(scope="channel_subscriptions")['access_token']
     ws = websocket.WebSocketApp(websocket_server,
                              on_message = on_message,
                              on_error = on_error,
