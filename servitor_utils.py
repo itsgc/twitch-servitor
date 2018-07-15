@@ -48,15 +48,15 @@ class TwitchTools():
         # self.jar.set('placeholder_cookie', self.auth_token, domain=self.domain,
         # path='placeholder_path')
 
-    def _get(self, url, parameters):
+    def _get(self, url=None, parameters=None):
         if parameters is None:
             r = self.session.get(url=url, headers=self.headers, cookies=self.jar)
         else:
             r = self.session.get(url=url, params=parameters, headers=self.headers,
                                  cookies=self.jar)
-        return r
+        return r.json()
 
-    def _post(self, url, parameters, payload):
+    def _post(self, url=None, parameters=None, payload=None):
         if parameters is None:
             r = self.session.post(url=url, headers=self.headers, cookies=self.jar,
                                   data=payload)
@@ -98,14 +98,17 @@ class TwitchTools():
                 "redirect_uri": redirect_uri
         }
         url = "https://id.twitch.tv/oauth2/token"
-        access_token = self._post(url=url, payload=payload)
+        access_token = self._post(url=url, parameters=payload, payload=payload)
+        print access_token
         return access_token
 
     def get_user_info(self, auth_token, type, value):
         url = "https://api.twitch.tv/helix/users"
         self.headers['Authorization'] = 'Bearer ' + auth_token
+        print self.headers
         payload = {type: value}
         user_info = self._get(url=url, parameters=payload)
+        print user_info
         return user_info
 
     def get_channel_id(auth_token):
