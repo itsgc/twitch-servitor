@@ -12,6 +12,8 @@ from yaml import load
 
 import servitor_utils
 from database import Token
+from database import Token
+from database import db
 from database import db
 
 try:
