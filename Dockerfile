@@ -23,4 +23,4 @@ ENV SETTINGS_FILE=$settingsfile
 ENV SECRETS_FILE=$secretsfile
 
 RUN pip install -r /code/requirements.txt
-ENTRYPOINT ["uwsgi", "--uid", "www-data", "--gid", "www-data", "--ini", "/code/uwsgi.ini"]
+ENTRYPOINT ["uwsgi", "--enable-threads", "--uid", "www-data", "--gid", "www-data", "--ini", "/code/uwsgi.ini"]
