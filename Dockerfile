@@ -19,10 +19,8 @@ RUN mkdir $secretsdir
 WORKDIR /code
 ADD . /code
 
-RUN cat $creds > $secretsfile
 ENV SETTINGS_FILE=$settingsfile
 ENV SECRETS_FILE=$secretsfile
 
-RUN ls /code/creds.yml
 RUN pip install -r /code/requirements.txt
 ENTRYPOINT ["uwsgi", "--ini", "/code/uwsgi.ini"]
