@@ -16,6 +16,7 @@ class Token(db.Model):
 def init_db():
     try:
         db.create_all()
+        db.session.commit()
     except Exception as e:
         error = "Failed creating the datatabase: {}".format(e)
         return error
