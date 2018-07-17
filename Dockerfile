@@ -23,4 +23,5 @@ ENV SETTINGS_FILE=$settingsfile
 ENV SECRETS_FILE=$secretsfile
 
 RUN pip install -r /code/requirements.txt
-ENTRYPOINT ["uwsgi", "--enable-threads", "--uid", "www-data", "--gid", "www-data", "--ini", "/code/uwsgi.ini"]
+RUN ["chmod", "+x", "./docker-entrypoint.sh"]
+ENTRYPOINT ["./docker-entrypoint.sh"]
