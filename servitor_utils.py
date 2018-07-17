@@ -1,3 +1,5 @@
+import base64
+import bcrypt
 import json
 import pika
 import requests
@@ -102,7 +104,6 @@ class TwitchTools():
         if scope is not None:
             payload['scope'] = scope
         app_token = self._post(url=url, parameters=payload, payload=payload)
-        print json.dumps(app_token)
         return app_token
 
     def get_access_token(self, intermediate_code):
@@ -119,6 +120,12 @@ class TwitchTools():
         access_token = self._post(url=url, parameters=payload, payload=payload)
         return access_token
 
+    def get_pubsub_token(self, secret, dispenser_url):
+        encoded_secret = base64.b64encode(secret)
+        self.headers['PubSubSecret'] = encoded_secret
+        token = self._get(url=dispenser_url)
+        return json.loads(token)
+
     def get_user_info(self, auth_token, type, value):
         url = "https://api.twitch.tv/helix/users"
         self.headers['Authorization'] = 'Bearer ' + auth_token
@@ -129,8 +136,15 @@ class TwitchTools():
     def get_channel_id(self, auth_token):
         url = 'https://api.twitch.tv/kraken/channel'
         self.headers['Authorization'] =  'OAuth ' + auth_token
-        channel_id = self._get(url=url, headers=headers)
+        channel_id = self._get(url=url)
         return channel_id
+
+    def validate_pubsub_secret(self, secret, hash):
+        decoded_secret = base64.b64decode(secret)
+        if bcrypt.checkpw(decoded_secret, hash):
+            return True
+        else:
+            return False
 
     def subscribe_followers(self, user_id, callback_url):
         self.headers['Client-ID'] = self.client_id

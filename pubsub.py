@@ -14,6 +14,8 @@ import time
 
 settings = servitor_utils.make_settings("settings.yml")
 auth_data = servitor_utils.make_auth("creds.yml")
+pubsub_auth_data = servitor_utils.make_auth("pubsub_creds.yml")
+
 
 def check_message(ws, message):
     try:
@@ -73,10 +75,12 @@ def on_open(ws, settings, auth_token):
 if __name__ == "__main__":
     websocket.enableTrace(True)
     auth_data['auth_endpoint'] = None
+    dispenser_url = settings['dispenser_url']
+    pubsub_secret = pubsub_auth_data['pubsub_secret']
     toolkit = servitor_utils.TwitchTools(auth_data)
+    twitch_token_payload =  toolkit.get_pubsub_token(secret=pubsub_secret, dispenser_url=dispenser_url)
+    twitch_token = twitch_token_payload['access_token']
     websocket_server = settings['websocket_pubsub_server']
-    twitch_token = auth_data['tmp_pubsub_token']
-    # twitch_token = toolkit.get_app_token(scope="channel_subscriptions")['access_token']
     ws = websocket.WebSocketApp(websocket_server,
                              on_message = on_message,
                              on_error = on_error,

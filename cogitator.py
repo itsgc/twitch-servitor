@@ -60,9 +60,6 @@ def authlistener():
     db.session.add(new_token)
     db.session.commit()
     tokens = Token.query.all()
-    for token in tokens:
-        if token.token_expiration > now:
-            print "{} {} {} {}".format(token.access_token, token.refresh_token, token.token_expiration, token.token_scope)
     if scope == "channel_read":
         user_data = toolkit.get_user_info(twitch_token['access_token'],
                                       type="login", value="karmik")
@@ -93,13 +90,14 @@ def webhook():
 
 @app.route("/twitch/tokendispenser", methods = ['GET'])
 def tokendispenser():
-    # received_token = request.headers.get('PubSubToken')
-    valid_twitch_token = db.session.query(Token).filter(Token.token_expiration > datetime.datetime.utcnow()).first()
-    print valid_twitch_token.access_token
-    return "OK"
-    # if toolkit.validate_pubsub_token(received_token):
-    #    return valid_twitch_token
-
-
-
-    stored_hash = settings['pubsub_token_hash']
+    received_secret = request.headers.get('PubSubSecret')
+    if toolkit.validate_pubsub_secret(received_secret, auth_data['pubsub_hash']):
+        db_result = db.session.query(Token).filter(Token.token_expiration > datetime.datetime.utcnow()).filter(Token.token_scope == "channel_subscriptions").first()
+        token_lifetime = db_result.token_expiration - datetime.datetime.utcnow()
+        valid_twitch_token = {"access_token": db_result.access_token,
+                              "refresh_token": db_result.refresh_token,
+                              "expires_in": token_lifetime.seconds,
+                              "scope": db_result.token_scope}
+        return json.dumps(valid_twitch_token)
+    else:
+        return "Authentication Failed"
