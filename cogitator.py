@@ -28,6 +28,7 @@ def create_app(settings):
                                           auth_data['db_password'],
                                           settings['cogitator_db_host'],
                                           settings['cogitator_db'])
+    print db_uri
     app.config['SERVER_NAME'] = settings['cogitator_server_fqdn']
     app.config['PREFERRED_URL_SCHEME'] = settings['cogitator_url_scheme']
     app.config['SQLALCHEMY_DATABASE_URI'] =  db_uri
