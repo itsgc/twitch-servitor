@@ -9,7 +9,6 @@ RUN apt-get update && \
     apt-get -qq -y update && \
     apt-get clean
 
-ARG creds
 ARG settingsfile
 ARG secretsdir
 ARG secretsfile
