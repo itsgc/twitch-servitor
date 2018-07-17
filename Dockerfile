@@ -24,4 +24,5 @@ ENV SECRETS_FILE=$secretsfile
 
 RUN pip install -r /code/requirements.txt
 RUN ["chmod", "+x", "./docker-entrypoint.sh"]
+RUN ["chmod", "+x", "./wait-for-it.sh"]
 ENTRYPOINT ["./docker-entrypoint.sh"]
