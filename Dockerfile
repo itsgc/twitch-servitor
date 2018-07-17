@@ -17,7 +17,7 @@ ARG secretsfile
 RUN mkdir /code
 RUN mkdir $secretsdir
 WORKDIR /code
-ADD . /code
+COPY --chown=www-data:www-data . /code
 
 ENV SETTINGS_FILE=$settingsfile
 ENV SECRETS_FILE=$secretsfile
