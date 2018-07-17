@@ -16,6 +16,7 @@ Flask-SQLAlchemy==2.3.2
 functools32==3.2.3.post2
 get==1.0.3
 idna==2.6
+logging
 ipaddress==1.0.22
 itsdangerous==0.24
 Jinja2==2.10

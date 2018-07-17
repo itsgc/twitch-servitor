@@ -1,5 +1,9 @@
+import logging
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+
+logging.basicConfig()
+logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 db = SQLAlchemy()
 
