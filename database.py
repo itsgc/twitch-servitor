@@ -17,7 +17,7 @@ class Token(db.Model):
     def __repr__(self):
         return '<Token %r>' % self.access_token
 
-def init_db():
+def init_db(db):
     try:
         db.create_all()
         db.session.commit()
