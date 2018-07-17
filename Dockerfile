@@ -5,6 +5,7 @@ RUN apt-get update && \
     apt-get -y dist-upgrade && \
     apt-get -qq -y install python python-pip && \
     apt-get -qq -y install build-essential && \
+    apt-get -qq -y install libmysqlclient-dev && \
     apt-get -qq -y install uwsgi && \
     apt-get -qq -y update && \
     apt-get clean
