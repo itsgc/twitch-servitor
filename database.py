@@ -24,4 +24,3 @@ def init_db(db):
     except Exception as e:
         error = "Failed creating the datatabase: {}".format(e)
         return error
-
