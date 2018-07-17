@@ -12,9 +12,8 @@ from yaml import load
 
 import servitor_utils
 from database import Token
-from database import Token
 from database import db
-from database import db
+from database import init_db
 
 try:
     import thread
@@ -22,32 +21,23 @@ except ImportError:
     import _thread as thread
 import time
 
-def create_app():
+def create_app(settings):
     app = Flask(__name__)
-    app.config['SERVER_NAME'] = "apple.didgt.info"
-    app.config['PREFERRED_URL_SCHEME'] = "https"
-    app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:////tmp/test.db"
+    app.config['SERVER_NAME'] = settings['cogitator_server_fqdn']
+    app.config['PREFERRED_URL_SCHEME'] = settings['cogitator_url_scheme']
+    app.config['SQLALCHEMY_DATABASE_URI'] =  settings['cogitator_database_uri']
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
-    try:
-        db.create_all()
-    except Exception as e:
-        error = "Failed creating the datatabase: {}".format(e)
-        return error
     return app
 
-app = create_app()
 settings = servitor_utils.make_settings("settings.yml")
 auth_data = servitor_utils.make_auth("creds.yml")
 auth_data['auth_endpoint'] = "https://apple.didgt.info/twitch/authlistener"
+
+app = create_app(settings)
+app.app_context().push()
+init_db()
 toolkit = servitor_utils.TwitchTools(auth_data)
-
-
-try:
-    db.create_all()
-except Exception as e:
-    error = "Failed creating the datatabase: {}".format(e)
-    print error
 
 @app.route("/")
 def index():
@@ -81,9 +71,6 @@ def authlistener():
                                     callback_url=url_for('webhook', _external=True))
 
     return "OK"
-    # elif scope == "channel_subscriptions":
-    #    # This is a terrible idea.
-    #    return json.dumps(twitch_token)
 
 @app.route("/twitch/webhook", methods = ['GET', 'POST'])
 def webhook():
@@ -103,3 +90,16 @@ def webhook():
                         "message": user_data['data'][0]['profile_image_url']}
             servitor_utils.send_amqp_notice(payload, topic=settings['topics']['webhook'])
             return "OK"
+
+@app.route("/twitch/tokendispenser", methods = ['GET'])
+def tokendispenser():
+    # received_token = request.headers.get('PubSubToken')
+    valid_twitch_token = db.session.query(Token).filter(Token.token_expiration > datetime.datetime.utcnow()).first()
+    print valid_twitch_token.access_token
+    return "OK"
+    # if toolkit.validate_pubsub_token(received_token):
+    #    return valid_twitch_token
+
+
+
+    stored_hash = settings['pubsub_token_hash']

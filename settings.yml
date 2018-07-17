@@ -11,3 +11,6 @@ topics:
 nickname: "Karmik"
 irc_channel: "#karmik"
 channel_id: "7578596"
+cogitator_database_uri: "sqlite:////tmp/test.db"
+cogitator_server_fqdn: "apple.didgt.info"
+cogitator_url_scheme: "https"

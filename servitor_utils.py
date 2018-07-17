@@ -43,8 +43,6 @@ class TwitchTools():
         self.headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/vnd.twitchtv.v5+json',
-            # 'Authorization': 'OAuth ' + auth_token,
-            # 'Authorization': 'Bearer ' + auth_token
         }
         self.jar = requests.cookies.RequestsCookieJar()
         self.session = requests.Session()

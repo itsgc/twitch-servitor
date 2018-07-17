@@ -13,3 +13,10 @@ class Token(db.Model):
     def __repr__(self):
         return '<Token %r>' % self.access_token
 
+def init_db():
+    try:
+        db.create_all()
+    except Exception as e:
+        error = "Failed creating the datatabase: {}".format(e)
+        return error
+
