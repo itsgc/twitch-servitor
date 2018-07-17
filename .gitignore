@@ -107,6 +107,7 @@ venv.bak/
 creds.yml
 settings.yml
 pubsub_creds.yml
+wait-for-it.sh
 
 # ide files
 *.idea
