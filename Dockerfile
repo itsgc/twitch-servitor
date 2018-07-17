@@ -9,10 +9,20 @@ RUN apt-get update && \
     apt-get -qq -y update && \
     apt-get clean
 
+ARG creds
+ARG settingsfile
+ARG secretsdir
+ARG secretsfile
+
 RUN mkdir /code
+RUN mkdir $secretsdir
 WORKDIR /code
 ADD . /code
-ADD $credsfile /code
 
+RUN cat $creds > $secretsfile
+ENV SETTINGS_FILE=$settingsfile
+ENV SECRETS_FILE=$secretsfile
+
+RUN ls /code/creds.yml
 RUN pip install -r /code/requirements.txt
 ENTRYPOINT ["uwsgi", "--ini", "/code/uwsgi.ini"]

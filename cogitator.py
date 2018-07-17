@@ -8,6 +8,7 @@ from flask import redirect
 from flask import request
 from flask import url_for
 from flask_sqlalchemy import SQLAlchemy
+from os import environ
 from yaml import load
 
 import servitor_utils
@@ -30,8 +31,8 @@ def create_app(settings):
     db.init_app(app)
     return app
 
-settings = servitor_utils.make_settings("settings.yml")
-auth_data = servitor_utils.make_auth("creds.yml")
+settings = servitor_utils.make_settings(environ.get('SETTINGS_FILE'))
+auth_data = servitor_utils.make_auth(environ.get('SECRETS_FILE'))
 auth_data['auth_endpoint'] = "https://apple.didgt.info/twitch/authlistener"
 
 app = create_app(settings)
