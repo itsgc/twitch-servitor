@@ -2,7 +2,7 @@ websocket_irc_server: "wss://irc-ws.chat.twitch.tv/"
 websocket_pubsub_server: "wss://pubsub-edge.twitch.tv"
 websocket_local_server: localhost
 websocket_local_port: 80
-amqp_server: localhost
+amqp_server: astropath
 amqp_exchange: "topic_twitch_servitor"
 topics:
   webhook: "topic.twitch.follows"
@@ -11,6 +11,7 @@ topics:
 nickname: "Karmik"
 irc_channel: "#karmik"
 channel_id: "7578596"
-cogitator_database_uri: "sqlite:////tmp/test.db"
+cogitator_db_host: "remembrancer"
+cogitator_db: "cogitator_archive"
 cogitator_server_fqdn: "apple.didgt.info"
 cogitator_url_scheme: "https"

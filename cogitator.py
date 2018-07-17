@@ -24,9 +24,13 @@ import time
 
 def create_app(settings):
     app = Flask(__name__)
+    db_uri = "mysql://{}:{}@{}/{}".format(auth_data['db_user'],
+                                          auth_data['db_password'],
+                                          settings['cogitator_db_host'],
+                                          settings['cogitator_db'])
     app.config['SERVER_NAME'] = settings['cogitator_server_fqdn']
     app.config['PREFERRED_URL_SCHEME'] = settings['cogitator_url_scheme']
-    app.config['SQLALCHEMY_DATABASE_URI'] =  settings['cogitator_database_uri']
+    app.config['SQLALCHEMY_DATABASE_URI'] =  db_uri
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
     return app
