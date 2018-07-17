@@ -1,7 +1,7 @@
 websocket_irc_server: "wss://irc-ws.chat.twitch.tv/"
 websocket_pubsub_server: "wss://pubsub-edge.twitch.tv"
-websocket_local_server: localhost
-websocket_local_port: 80
+websocket_local_server: auscultator
+websocket_local_port: 8080
 amqp_server: astropath
 amqp_exchange: "topic_twitch_servitor"
 topics:

@@ -1,5 +1,9 @@
 import json
+from os import environ
 from websocket_server import WebsocketServer
+
+import servitor_utils
+
 
 def client_connected(client, server):
 	announce_string = "Hey all, {} has joined us".format(client['id'])
@@ -13,6 +17,7 @@ def broadcast_message(client, server, message):
     announce_string = json.loads(message)
     server.send_message_to_all(json.dumps(announce_string, ensure_ascii=False))
 
-server = WebsocketServer(8000, host='127.0.0.1')
+settings = servitor_utils.make_settings(environ.get('SETTINGS_FILE'))
+server = WebsocketServer(port=settings['websocket_local_port'], host='0.0.0.0')
 server.set_fn_message_received(broadcast_message)
 server.run_forever()
