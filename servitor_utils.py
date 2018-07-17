@@ -83,6 +83,8 @@ class TwitchTools():
             scope = "channel_subscriptions"
         elif type == "irc":
             scope = "chat_login"
+        else:
+            scope = "channel_feed_read" # cannot make requests without a scope
 
         payload = { "client_id": self.client_id,
                     "redirect_uri": self.auth_listener,
@@ -105,7 +107,7 @@ class TwitchTools():
         print json.dumps(app_token)
         return app_token
 
-    def get_access_tokens(self, intermediate_code):
+    def get_access_token(self, intermediate_code):
         grant_type = "authorization_code"
         redirect_uri = self.auth_listener
         payload = {

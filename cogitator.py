@@ -1,3 +1,4 @@
+import datetime
 import json
 import re
 import time
@@ -6,9 +7,12 @@ from flask import Flask
 from flask import redirect
 from flask import request
 from flask import url_for
+from flask_sqlalchemy import SQLAlchemy
 from yaml import load
 
 import servitor_utils
+from database import Token
+from database import db
 
 try:
     import thread
@@ -16,13 +20,32 @@ except ImportError:
     import _thread as thread
 import time
 
-app = Flask(__name__)
-app.config['SERVER_NAME'] = "apple.didgt.info"
-app.config['PREFERRED_URL_SCHEME'] = "https"
+def create_app():
+    app = Flask(__name__)
+    app.config['SERVER_NAME'] = "apple.didgt.info"
+    app.config['PREFERRED_URL_SCHEME'] = "https"
+    app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:////tmp/test.db"
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    db.init_app(app)
+    try:
+        db.create_all()
+    except Exception as e:
+        error = "Failed creating the datatabase: {}".format(e)
+        return error
+    return app
+
+app = create_app()
 settings = servitor_utils.make_settings("settings.yml")
 auth_data = servitor_utils.make_auth("creds.yml")
 auth_data['auth_endpoint'] = "https://apple.didgt.info/twitch/authlistener"
 toolkit = servitor_utils.TwitchTools(auth_data)
+
+
+try:
+    db.create_all()
+except Exception as e:
+    error = "Failed creating the datatabase: {}".format(e)
+    print error
 
 @app.route("/")
 def index():
@@ -36,18 +59,29 @@ def auth():
 def authlistener():
     twitch_code = request.args.get('code', '')
     scope = request.args.get('scope', '')
-    twitch_tokens = toolkit.get_access_tokens(twitch_code)
+    twitch_token = toolkit.get_access_token(twitch_code)
+    now = datetime.datetime.utcnow()
+    new_token = Token(access_token=twitch_token['access_token'],
+                      refresh_token=twitch_token['refresh_token'],
+                      token_expiration=now + datetime.timedelta(0, twitch_token['expires_in']),
+                      token_scope=twitch_token['scope'][0])
+    db.session.add(new_token)
+    db.session.commit()
+    tokens = Token.query.all()
+    for token in tokens:
+        if token.token_expiration > now:
+            print "{} {} {} {}".format(token.access_token, token.refresh_token, token.token_expiration, token.token_scope)
     if scope == "channel_read":
-        user_data = toolkit.get_user_info(twitch_tokens['access_token'],
+        user_data = toolkit.get_user_info(twitch_token['access_token'],
                                       type="login", value="karmik")
         user_id = int(user_data['data'][0]['id'])
         toolkit.subscribe_followers(user_id,
                                     callback_url=url_for('webhook', _external=True))
 
-        return "OK"
+    return "OK"
     # elif scope == "channel_subscriptions":
     #    # This is a terrible idea.
-    #    return json.dumps(twitch_tokens)
+    #    return json.dumps(twitch_token)
 
 @app.route("/twitch/webhook", methods = ['GET', 'POST'])
 def webhook():
