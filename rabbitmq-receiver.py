@@ -9,7 +9,7 @@ import servitor_utils
 
 settings = servitor_utils.make_settings("settings.yml")
 
-def send_ws_message(message, settings):
+def send_ws_message(settings, message):
     websocket_server = settings['websocket_local_server']
     ws = websocket.create_connection(websocket_server)
     ws.send(message)
@@ -20,15 +20,18 @@ def callback(ch, method, properties, body):
     amqp_payload = json.loads(body)
     message_payload = {"topic": method.routing_key,
                        "message": amqp_payload}
-    send_ws_message(json.dumps(message_payload, ensure_ascii=False))
+    send_ws_message(settings=settings,
+                    message=json.dumps(message_payload, ensure_ascii=False))
 
 
 if __name__ == "__main__":
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host=settings['amqp_server']))
+    amqp_connection_params = pika.ConnectionParameters(host=settings['amqp_server'])
+    connection = pika.BlockingConnection(amqp_connection_params)
     channel = connection.channel()
     login_message = {"type": "status",
                      "message": "rabbitmq-receiver online"}
-    send_ws_message(json.dumps(login_message))
+    send_ws_message(settings=settings,
+                    message=json.dumps(login_message, ensure_ascii=False))
     channel.exchange_declare(exchange=settings['amqp_exchange'],
                              exchange_type="topic")
     result = channel.queue_declare(exclusive=True)
@@ -40,7 +43,8 @@ if __name__ == "__main__":
                            routing_key=binding_key)
         queue_subscribe_message = {"topic": "status",
                                    "message": "rabbitmq-receiver subscribed to {}".format(binding_key)}
-        send_ws_message(json.dumps(queue_subscribe_message))
+        send_ws_message(settings=settings,
+                        message=json.dumps(queue_subscribe_message, ensure_ascii=False))
     channel.basic_consume(callback, queue=queue_name,
                           no_ack=True)
     channel.start_consuming()
