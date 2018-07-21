@@ -18,6 +18,6 @@ def broadcast_message(client, server, message):
     server.send_message_to_all(json.dumps(announce_string, ensure_ascii=False))
 
 settings = servitor_utils.make_settings(environ.get('SETTINGS_FILE'))
-server = WebsocketServer(port=settings['websocket_local_port'], host='0.0.0.0')
+server = WebsocketServer(port=settings['websocket_local_port'], host=settings['websocket_local_server'])
 server.set_fn_message_received(broadcast_message)
 server.run_forever()
