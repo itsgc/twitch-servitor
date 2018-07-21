@@ -11,7 +11,9 @@ settings = servitor_utils.make_settings("settings.yml")
 
 def send_ws_message(settings, message):
     websocket_server = settings['websocket_local_server']
-    ws = websocket.create_connection(websocket_server)
+    websocket_port = settings['websocket_local_port']
+    websocket_uri = "ws://{}:{}".format(websocket_server, websocket_port)
+    ws = websocket.create_connection(websocket_uri)
     ws.send(message)
     ws.recv()
     ws.close()
