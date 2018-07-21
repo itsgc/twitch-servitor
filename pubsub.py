@@ -1,6 +1,7 @@
 import json
 import re
 import websocket
+from os import environ
 from yaml import load
 
 import servitor_utils
@@ -11,10 +12,9 @@ except ImportError:
     import _thread as thread
 import time
 
-
-settings = servitor_utils.make_settings("settings.yml")
-auth_data = servitor_utils.make_auth("creds.yml")
-pubsub_auth_data = servitor_utils.make_auth("pubsub_creds.yml")
+settings = servitor_utils.make_settings(environ.get('SETTINGS_FILE'))
+auth_data = servitor_utils.make_auth(environ.get('SECRETS_FILE'))
+pubsub_auth_data = servitor_utils.make_auth(environ.get('PUBSUB_SECRETS_FILE'))
 
 
 def check_message(ws, message):
