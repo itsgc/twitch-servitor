@@ -35,7 +35,10 @@ def check_message(ws, message):
                             "sub-type": "SUBSCRIPTION",
                             "sub-type-username": sub_payload['display_name'],
                             "message": sub_data}
-            servitor_utils.send_amqp_notice(amqp_payload, topic=settings['topics']['pubsub'])
+            servitor_utils.send_amqp_notice(host=settings['amqp_server'],
+                                            exchange=settings['amqp_exchange'],
+                                            topic=settings['topics']['pubsub'],
+                                            message=amqp_payload)
         print parsed_message
     except Exception as e:
         print "failed parsing message: {}".format(e)
