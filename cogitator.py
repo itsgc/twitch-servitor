@@ -4,6 +4,7 @@ import re
 import time
 import websocket
 from flask import Flask
+from flask import jsonify
 from flask import redirect
 from flask import request
 from flask import url_for
@@ -101,12 +102,17 @@ def webhook():
 def tokendispenser():
     received_secret = request.headers.get('PubSubSecret')
     if toolkit.validate_pubsub_secret(received_secret, auth_data['pubsub_hash']):
-        db_result = db.session.query(Token).filter(Token.token_expiration > datetime.datetime.utcnow()).filter(Token.token_scope == "channel_subscriptions").first()
-        token_lifetime = db_result.token_expiration - datetime.datetime.utcnow()
-        valid_twitch_token = {"access_token": db_result.access_token,
-                              "refresh_token": db_result.refresh_token,
-                              "expires_in": token_lifetime.seconds,
-                              "scope": db_result.token_scope}
-        return json.dumps(valid_twitch_token)
+        try:
+            db_result = db.session.query(Token).filter(Token.token_expiration > datetime.datetime.utcnow()).filter(Token.token_scope == "channel_subscriptions").first()
+            token_lifetime = db_result.token_expiration - datetime.datetime.utcnow()
+            valid_twitch_token = {"access_token": db_result.access_token,
+                                  "refresh_token": db_result.refresh_token,
+                                  "expires_in": token_lifetime.seconds,
+                                  "scope": db_result.token_scope}
+            return jsonify(valid_twitch_token)
+        except Exception as e:
+            error = {"message": str(e)}
+            return jsonify(error)
     else:
-        return "Authentication Failed"
+        message = {"message": "Authentication Failed"}
+        return jsonify(message)

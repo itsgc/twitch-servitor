@@ -61,7 +61,7 @@ class TwitchTools():
         if response == "text":
             return r.text
         elif response == "json":
-            return r.json()
+           return r.json()
 
     def _post(self, url=None, parameters=None, payload=None, response="json"):
         if parameters is None:

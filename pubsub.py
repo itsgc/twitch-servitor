@@ -1,3 +1,4 @@
+import datetime
 import json
 import re
 import websocket
@@ -73,6 +74,13 @@ def on_open(ws, settings, auth_token):
                     }
                   }
         ws.send(json.dumps(payload))
+        amqp_payload = { "sub-type": "NOTICE",
+                         "sub-type-username": "pubsub",
+                         "message": payload }
+        servitor_utils.send_amqp_notice(host=settings['amqp_server'],
+                                            exchange=settings['amqp_exchange'],
+                                            topic=settings['topics']['pubsub'],
+                                            message=amqp_payload)
     thread.start_new_thread(run, ())
 
 if __name__ == "__main__":
@@ -82,12 +90,16 @@ if __name__ == "__main__":
     pubsub_secret = pubsub_auth_data['pubsub_secret']
     toolkit = servitor_utils.TwitchTools(auth_data)
     twitch_token_payload =  toolkit.get_pubsub_token(secret=pubsub_secret, dispenser_url=dispenser_url)
-    twitch_token = twitch_token_payload['access_token']
-    websocket_server = settings['websocket_pubsub_server']
-    ws = websocket.WebSocketApp(websocket_server,
-                             on_message = on_message,
-                             on_error = on_error,
-                             on_close = on_close,
-                             )
-    ws.on_open = on_open(ws, settings, twitch_token)
-    ws.run_forever(ping_interval=300, ping_timeout=10)
+    try:
+        twitch_token = twitch_token_payload['access_token']
+        websocket_server = settings['websocket_pubsub_server']
+        ws = websocket.WebSocketApp(websocket_server,
+                                    on_message = on_message,
+                                    on_error = on_error,
+                                    on_close = on_close,
+                                   )
+        ws.on_open = on_open(ws, settings, twitch_token)
+        ws.run_forever(ping_interval=300, ping_timeout=10)
+    except:
+        print datetime.datetime.now().strftime('%s')
+        print "{}: twitch token not ready".format(datetime.datetime.now().strftime('%s'))
