@@ -1,0 +1,18 @@
+websocket_irc_server: "wss://irc-ws.chat.twitch.tv/"
+websocket_pubsub_server: "wss://pubsub-edge.twitch.tv"
+websocket_local_server: auscultator
+websocket_local_port: 8080
+dispenser_url: "https://apple.didgt.info/twitch/tokendispenser"
+amqp_server: astronomican
+amqp_exchange: "topic_twitch_servitor"
+topics:
+  webhook: "topic.twitch.follows"
+  pubsub: "topic.twitch.subscriptions"
+  irc: "topic.twitch.hosts"
+nickname: "Karmik"
+irc_channel: "#karmik"
+channel_id: "7578596"
+cogitator_db_host: "remembrancer"
+cogitator_db: "cogitator_archive"
+cogitator_server_fqdn: "apple.didgt.info"
+cogitator_url_scheme: "https"

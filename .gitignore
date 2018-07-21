@@ -102,3 +102,10 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# personal
+creds.yml
+pubsub_creds.yml
+
+# ide files
+*.idea
