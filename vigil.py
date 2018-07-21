@@ -3,6 +3,7 @@ import pika
 import re
 import time
 import websocket
+from os import environ
 
 import servitor_utils
 
@@ -12,8 +13,8 @@ except ImportError:
     import _thread as thread
 import time
 
-settings = servitor_utils.make_settings("settings.yml")
-auth_data = servitor_utils.make_auth("creds.yml")
+settings = servitor_utils.make_settings(environ.get('SETTINGS_FILE'))
+auth_data = servitor_utils.make_auth(environ.get('SECRETS_FILE'))
 
 def check_message(ws, message):
     if message[0] == "@":
@@ -49,7 +50,10 @@ def check_message(ws, message):
                     args['sub-type'] = "HOST"
                     args['sub-type-username'] = args['message'].split(" ")[0]
                     print args['type'] + " " + args['sub-type'] + " " + args['sub-type-username']
-                    servitor_utils.send_amqp_notice(args, topic=settings['topics']['irc'])
+                    servitor_utils.send_amqp_notice(host=settings['amqp_server'],
+                                                    exchange=settings['amqp_exchange'],
+                                                    topic=settings['topics']['irc'],
+                                                    message=args)
                     print "sent something"
                 else:
                     print args['type'] + " " + args['username'] + " " + args['message']
@@ -138,6 +142,14 @@ def on_open(ws, settings, auth_token):
         ws.send("CAP REQ :twitch.tv/tags")
         time.sleep(1)
         ws.send("CAP REQ :twitch.tv/commands")
+        message = dict()
+        message['message'] = "signon to Twitch IRC succeeded"
+        message['sub-type'] = "NOTICE"
+        message['sub-type-username'] = "vigil"
+        servitor_utils.send_amqp_notice(host=settings['amqp_server'],
+                                        exchange=settings['amqp_exchange'],
+                                        topic=settings['topics']['irc'],
+                                        message=message)
     thread.start_new_thread(run, ())
 
 
