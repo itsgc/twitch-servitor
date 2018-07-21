@@ -15,10 +15,10 @@ def make_settings(settingsfile_path):
     with open(settingsfile_path, 'r') as settingsfile:
         return yaml.load(settingsfile)
 
-def send_amqp_notice(message, topic):
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+def send_amqp_notice(host, exchange, topic, message):
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host))
     channel = connection.channel()
-    channel.exchange_declare(exchange="topic_twitch_servitor",
+    channel.exchange_declare(exchange=exchange,
                          exchange_type="topic")
     routing_key = topic
     message = { "type": message['sub-type'],

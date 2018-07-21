@@ -91,7 +91,10 @@ def webhook():
             payload = { "sub-type": "FOLLOW",
                         "sub-type-username": user_data['data'][0]['display_name'],
                         "message": user_data['data'][0]['profile_image_url']}
-            servitor_utils.send_amqp_notice(payload, topic=settings['topics']['webhook'])
+            servitor_utils.send_amqp_notice(host=settings['amqp_server'],
+                                            exchange=settings['amqp_exchange'],
+                                            topic=settings['topics']['webhook'],
+                                            message=payload)
             return "OK"
 
 @app.route("/twitch/tokendispenser", methods = ['GET'])
