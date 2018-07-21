@@ -8,7 +8,6 @@ import websocket
 import servitor_utils
 
 settings = servitor_utils.make_settings("settings.yml")
-auth_creds = servitor_utils.make_auth("creds.yml")
 
 def send_ws_message(message, settings):
     websocket_server = settings['websocket_local_server']
