@@ -46,12 +46,7 @@ app = create_app(settings)
 app.app_context().push()
 init_db(db)
 tokens = AuthDbTools(db, Token)
-oauth_codes = AuthDbTools(db, OAuthCode)
-seed_oauth_code = environ.get('OAUTH_CODE')
 toolkit = servitor_utils.TwitchTools(auth_data)
-initial_pubsub_token = toolkit.get_access_token(seed_oauth_code)
-print initial_pubsub_token
-seed_token = tokens.new_token(initial_pubsub_token)
 
 
 @app.route("/")
@@ -69,9 +64,8 @@ def authlistener():
     twitch_token = toolkit.get_access_token(twitch_code)
     try:
         new_token = tokens.new_token(twitch_token)
-        new_code = oauth_codes.new_oauth_code(request.args)
     except Exception as e:
-        message = "Something went wrong adding a token or a pemanent twitch code " \
+        message = "Something went wrong adding a token" \
                   "to the database: {}".format(str(e))
         error = {"message": message}
         return jsonify(error)
@@ -85,7 +79,7 @@ def authlistener():
         toolkit.subscribe_followers(user_id,
                                     callback_url=url_for('webhook', _external=True))
 
-    return "OK"
+    return jsonify(twitch_token)
 
 @app.route("/twitch/webhook", methods = ['GET', 'POST'])
 def webhook():

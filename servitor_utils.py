@@ -120,6 +120,18 @@ class TwitchTools():
         access_token = self._post(url=url, parameters=payload, payload=payload)
         return access_token
 
+    def get_refreshed_token(self, refresh_token):
+        grant_type = "refresh_token"
+        payload = {
+                "client_id": self.client_id,
+                "client_secret": self.client_secret,
+                "refresh_token": urllib.urlencode(refresh_token),
+                "grant_type": grant_type
+        }
+        url = "https://id.twitch.tv/oauth2/token"
+        access_token = self.post(url=url, parameters=payload, payload=payload)
+        return access_token
+
     def get_pubsub_token(self, secret, dispenser_url):
         encoded_secret = base64.b64encode(secret)
         self.headers['PubSubSecret'] = encoded_secret
