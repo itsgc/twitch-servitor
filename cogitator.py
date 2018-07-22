@@ -104,12 +104,6 @@ def tokendispenser():
     if toolkit.validate_pubsub_secret(received_secret, auth_data['pubsub_hash']):
         try:
             valid_twitch_token = tokens.get_valid_token("channel_subscriptions")
-            # db_result = db.session.query(Token).filter(Token.token_expiration > datetime.datetime.utcnow()).filter(Token.token_scope == "channel_subscriptions").first()
-            # token_lifetime = db_result.token_expiration - datetime.datetime.utcnow()
-            # valid_twitch_token = {"access_token": db_result.access_token,
-            #                      "refresh_token": db_result.refresh_token,
-            #                      "expires_in": token_lifetime.seconds,
-            #                      "scope": db_result.token_scope}
             return jsonify(valid_twitch_token)
         except Exception as e:
             error = {"message": str(e)}
