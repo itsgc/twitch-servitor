@@ -129,7 +129,7 @@ class TwitchTools():
                 "grant_type": grant_type
         }
         url = "https://id.twitch.tv/oauth2/token"
-        access_token = self.post(url=url, parameters=payload, payload=payload)
+        access_token = self._post(url=url, parameters=payload, payload=payload)
         return access_token
 
     def get_pubsub_token(self, secret, dispenser_url):
