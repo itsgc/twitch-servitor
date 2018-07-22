@@ -14,7 +14,7 @@ class Token(db.Model):
     def __repr__(self):
         return '<Token %r>' % self.access_token
 
-class OauthCode(db.Model):
+class OAuthCode(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     oauth_code = db.Column(db.String(30), unique=True, nullable=False)
     oauth_scope = db.Column(db.Text, nullable=True)

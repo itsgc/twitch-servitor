@@ -14,6 +14,7 @@ from yaml import load
 
 import servitor_utils
 from database import AuthDbTools
+from database import OAuthCode
 from database import Token
 from database import db
 from database import init_db
@@ -45,6 +46,7 @@ app = create_app(settings)
 app.app_context().push()
 init_db(db)
 tokens = AuthDbTools(db, Token)
+oauth_codes = AuthDbTools(db, OAuthCode)
 toolkit = servitor_utils.TwitchTools(auth_data)
 
 @app.route("/")
@@ -62,8 +64,10 @@ def authlistener():
     twitch_token = toolkit.get_access_token(twitch_code)
     try:
         new_token = tokens.new_token(twitch_token)
+        new_code = oauth_codes.new_oauth_code(request.args)
     except Exception as e:
-        message = "Something went wrong adding a token to the database: {}".format(str(e))
+        message = "Something went wrong adding a token or a pemanent twitch code " \
+                  "to the database: {}".format(str(e))
         error = {"message": message}
         return jsonify(error)
 
