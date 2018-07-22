@@ -125,7 +125,7 @@ class TwitchTools():
         payload = {
                 "client_id": self.client_id,
                 "client_secret": self.client_secret,
-                "refresh_token": urllib.urlencode(refresh_token),
+                "refresh_token": refresh_token,
                 "grant_type": grant_type
         }
         url = "https://id.twitch.tv/oauth2/token"
