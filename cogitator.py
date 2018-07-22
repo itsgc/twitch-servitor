@@ -30,7 +30,6 @@ def create_app(settings):
                                           auth_data['db_password'],
                                           settings['cogitator_db_host'],
                                           settings['cogitator_db'])
-    print db_uri
     app.config['SERVER_NAME'] = settings['cogitator_server_fqdn']
     app.config['PREFERRED_URL_SCHEME'] = settings['cogitator_url_scheme']
     app.config['SQLALCHEMY_DATABASE_URI'] =  db_uri
@@ -64,7 +63,10 @@ def authlistener():
     try:
         new_token = tokens.new_token(twitch_token)
     except Exception as e:
-        print "Something went wrong adding a token to the database: {}".format(str(e))
+        message = "Something went wrong adding a token to the database: {}".format(str(e))
+        error = {"message": message}
+        return jsonify(error)
+
 
 
     if scope == "channel_read":
