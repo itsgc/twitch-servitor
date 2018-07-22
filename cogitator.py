@@ -41,12 +41,18 @@ def create_app(settings):
 settings = servitor_utils.make_settings(environ.get('SETTINGS_FILE'))
 auth_data = servitor_utils.make_auth(environ.get('SECRETS_FILE'))
 auth_data['auth_endpoint'] = "https://apple.didgt.info/twitch/authlistener"
-
+seed_refresh_token = environ.get('OAUTH_REFRESH_TOKEN')
 app = create_app(settings)
 app.app_context().push()
 init_db(db)
 tokens = AuthDbTools(db, Token)
 toolkit = servitor_utils.TwitchTools(auth_data)
+print seed_refresh_token
+refreshed_token = toolkit.get_refreshed_token(seed_refresh_token)
+print refreshed_token
+refreshed_token['expires_in'] = 3600
+print refreshed_token
+seed_token = tokens.new_token(refreshed_token)
 
 
 @app.route("/")
@@ -69,8 +75,6 @@ def authlistener():
                   "to the database: {}".format(str(e))
         error = {"message": message}
         return jsonify(error)
-
-
 
     if scope == "channel_read":
         user_data = toolkit.get_user_info(twitch_token['access_token'],
