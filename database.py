@@ -57,14 +57,14 @@ def AuthDbTools():
                        "scope": db_result.token_scope}
         return valid_token
 
-    def get_code():
+    def get_oauth_code():
         session = self.db.session
         query = session.query(self.table)
         db_result = query.first()
         valid_code = db_result.oauth_code
         return valid_code
 
-    def new_temp_token(dict):
+    def new_token(dict):
         token_expiration = self.now + datetime.timedelta(0, dict['expires_in'])
         new_token = self.table(access_token=dict['access_token'],
                                refresh_token=dict['refresh_token'],
