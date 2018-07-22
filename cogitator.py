@@ -47,11 +47,7 @@ app.app_context().push()
 init_db(db)
 tokens = AuthDbTools(db, Token)
 toolkit = servitor_utils.TwitchTools(auth_data)
-print seed_refresh_token
 refreshed_token = toolkit.get_refreshed_token(seed_refresh_token)
-print refreshed_token
-refreshed_token['expires_in'] = 3600
-print refreshed_token
 seed_token = tokens.new_token(refreshed_token)
 
 
