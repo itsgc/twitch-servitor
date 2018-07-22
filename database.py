@@ -41,11 +41,11 @@ class AuthDbTools():
         self.table = table
         self.now = datetime.datetime.utcnow()
 
-    def get_all_tokens(table):
+    def get_all_tokens(self, table):
         tokens = table.query.all()
         return tokens
 
-    def get_valid_token(scope):
+    def get_valid_token(self, scope):
         session = self.db.session
         query = session.query(self.table)
         db_result = query.filter(table.token_expiration > self.now).filter(
@@ -57,14 +57,14 @@ class AuthDbTools():
                        "scope": db_result.token_scope}
         return valid_token
 
-    def get_oauth_code():
+    def get_oauth_code(self):
         session = self.db.session
         query = session.query(self.table)
         db_result = query.first()
         valid_code = db_result.oauth_code
         return valid_code
 
-    def new_token(dict):
+    def new_token(self, dict):
         token_expiration = self.now + datetime.timedelta(0, dict['expires_in'])
         new_token = self.table(access_token=dict['access_token'],
                                refresh_token=dict['refresh_token'],
@@ -74,7 +74,7 @@ class AuthDbTools():
         self.db.session.commit()
         return True
 
-    def new_oauth_code(dict):
+    def new_oauth_code(self, dict):
         scope = dict['scope']
         code = dict['code']
         new_code = self.table(oauth_code=code,

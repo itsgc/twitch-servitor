@@ -61,10 +61,11 @@ def authlistener():
     twitch_code = request.args.get('code', '')
     scope = request.args.get('scope', '')
     twitch_token = toolkit.get_access_token(twitch_code)
-    try:
-        new_token = tokens.new_token(twitch_token)
-    except Exception as e:
-        print str(e)
+    # try:
+    new_token = tokens.new_token(twitch_token)
+    print new_token
+    # except Exception as e:
+    #    print str(e)
 
 #    now = datetime.datetime.utcnow()
 #    new_token = Token(access_token=twitch_token['access_token'],
@@ -74,6 +75,7 @@ def authlistener():
 #    db.session.add(new_token)
 #    db.session.commit()
 #    tokens = Token.query.all()
+#    print tokens
 
     if scope == "channel_read":
         user_data = toolkit.get_user_info(twitch_token['access_token'],
