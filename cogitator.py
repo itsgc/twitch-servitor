@@ -49,8 +49,8 @@ tokens = AuthDbTools(db, Token)
 oauth_codes = AuthDbTools(db, OAuthCode)
 seed_oauth_code = environ.get('OAUTH_CODE')
 toolkit = servitor_utils.TwitchTools(auth_data)
-# initial_pubsub_token = toolkit.get_access_token(seed_oauth_code)
-# seed_token = tokens.new_token(initial_pubsub_token)
+initial_pubsub_token = toolkit.get_access_token(seed_oauth_code)
+seed_token = tokens.new_token(initial_pubsub_token)
 
 
 @app.route("/")
