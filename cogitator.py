@@ -13,6 +13,7 @@ from os import environ
 from yaml import load
 
 import servitor_utils
+from database import AuthDbTools
 from database import Token
 from database import db
 from database import init_db
@@ -29,7 +30,6 @@ def create_app(settings):
                                           auth_data['db_password'],
                                           settings['cogitator_db_host'],
                                           settings['cogitator_db'])
-    print db_uri
     app.config['SERVER_NAME'] = settings['cogitator_server_fqdn']
     app.config['PREFERRED_URL_SCHEME'] = settings['cogitator_url_scheme']
     app.config['SQLALCHEMY_DATABASE_URI'] =  db_uri
@@ -43,7 +43,8 @@ auth_data['auth_endpoint'] = "https://apple.didgt.info/twitch/authlistener"
 
 app = create_app(settings)
 app.app_context().push()
-init_db()
+init_db(db)
+tokens = AuthDbTools(db, Token)
 toolkit = servitor_utils.TwitchTools(auth_data)
 
 @app.route("/")
@@ -59,14 +60,15 @@ def authlistener():
     twitch_code = request.args.get('code', '')
     scope = request.args.get('scope', '')
     twitch_token = toolkit.get_access_token(twitch_code)
-    now = datetime.datetime.utcnow()
-    new_token = Token(access_token=twitch_token['access_token'],
-                      refresh_token=twitch_token['refresh_token'],
-                      token_expiration=now + datetime.timedelta(0, twitch_token['expires_in']),
-                      token_scope=twitch_token['scope'][0])
-    db.session.add(new_token)
-    db.session.commit()
-    tokens = Token.query.all()
+    try:
+        new_token = tokens.new_token(twitch_token)
+    except Exception as e:
+        message = "Something went wrong adding a token to the database: {}".format(str(e))
+        error = {"message": message}
+        return jsonify(error)
+
+
+
     if scope == "channel_read":
         user_data = toolkit.get_user_info(twitch_token['access_token'],
                                       type="login", value="karmik")
@@ -103,12 +105,7 @@ def tokendispenser():
     received_secret = request.headers.get('PubSubSecret')
     if toolkit.validate_pubsub_secret(received_secret, auth_data['pubsub_hash']):
         try:
-            db_result = db.session.query(Token).filter(Token.token_expiration > datetime.datetime.utcnow()).filter(Token.token_scope == "channel_subscriptions").first()
-            token_lifetime = db_result.token_expiration - datetime.datetime.utcnow()
-            valid_twitch_token = {"access_token": db_result.access_token,
-                                  "refresh_token": db_result.refresh_token,
-                                  "expires_in": token_lifetime.seconds,
-                                  "scope": db_result.token_scope}
+            valid_twitch_token = tokens.get_valid_token("channel_subscriptions")
             return jsonify(valid_twitch_token)
         except Exception as e:
             error = {"message": str(e)}
