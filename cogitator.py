@@ -43,7 +43,7 @@ auth_data['auth_endpoint'] = "https://apple.didgt.info/twitch/authlistener"
 
 app = create_app(settings)
 app.app_context().push()
-init_db()
+init_db(db)
 toolkit = servitor_utils.TwitchTools(auth_data)
 
 @app.route("/")
