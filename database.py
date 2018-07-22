@@ -41,15 +41,15 @@ class AuthDbTools():
         self.table = table
         self.now = datetime.datetime.utcnow()
 
-    def get_all_tokens(self, table):
-        tokens = table.query.all()
+    def get_all_tokens(self):
+        tokens = self.table.query.all()
         return tokens
 
     def get_valid_token(self, scope):
         session = self.db.session
         query = session.query(self.table)
-        db_result = query.filter(table.token_expiration > self.now).filter(
-                                 table.token_scope == scope).first()
+        db_result = query.filter(self.table.token_expiration > self.now).filter(
+                                 self.table.token_scope == scope).first()
         token_lifetime = db_result.token_expiration - self.now
         valid_token = {"access_token": db_result.access_token,
                        "refresh_token": db_result.refresh_token,
