@@ -13,6 +13,7 @@ from os import environ
 from yaml import load
 
 import servitor_utils
+from database import AuthDbTools
 from database import Token
 from database import db
 from database import init_db
@@ -44,6 +45,7 @@ auth_data['auth_endpoint'] = "https://apple.didgt.info/twitch/authlistener"
 app = create_app(settings)
 app.app_context().push()
 init_db(db)
+tokens = AuthDbTools(db, Token)
 toolkit = servitor_utils.TwitchTools(auth_data)
 
 @app.route("/")
@@ -59,14 +61,20 @@ def authlistener():
     twitch_code = request.args.get('code', '')
     scope = request.args.get('scope', '')
     twitch_token = toolkit.get_access_token(twitch_code)
-    now = datetime.datetime.utcnow()
-    new_token = Token(access_token=twitch_token['access_token'],
-                      refresh_token=twitch_token['refresh_token'],
-                      token_expiration=now + datetime.timedelta(0, twitch_token['expires_in']),
-                      token_scope=twitch_token['scope'][0])
-    db.session.add(new_token)
-    db.session.commit()
-    tokens = Token.query.all()
+    try:
+        new_token = tokens.new_token(twitch_token)
+    except Exception as e:
+        print str(e)
+
+#    now = datetime.datetime.utcnow()
+#    new_token = Token(access_token=twitch_token['access_token'],
+#                      refresh_token=twitch_token['refresh_token'],
+#                      token_expiration=now + datetime.timedelta(0, twitch_token['expires_in']),
+#                      token_scope=twitch_token['scope'][0])
+#    db.session.add(new_token)
+#    db.session.commit()
+#    tokens = Token.query.all()
+
     if scope == "channel_read":
         user_data = toolkit.get_user_info(twitch_token['access_token'],
                                       type="login", value="karmik")
