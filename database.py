@@ -30,7 +30,7 @@ def init_db(db):
         error = "Failed creating the datatabase: {}".format(e)
         return error
 
-def AuthDbTools():
+class AuthDbTools():
     """ Class that handles all the DB calls needed to add, fetch, delete auth
         tokens coming from twitch, possibly with multi-streamer support coming
         down the line"""
