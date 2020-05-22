@@ -18,7 +18,7 @@ get==1.0.3
 idna==2.6
 ipaddress==1.0.22
 itsdangerous==0.24
-Jinja2==2.10
+Jinja2>=2.10.1
 jsonschema==2.6.0
 logging==0.4.9.6
 MarkupSafe==1.0
